@@ -34,11 +34,12 @@ read them before writing code, and re-read the relevant section before each phas
   to `date >= today`.
 - Contact email renders as visible selectable text AND a `mailto:`. OG image is the 1200×630 `og-image.jpg`.
 
-## Commands
-- `npm run dev` — local dev
-- `npm run build` — must pass with zero errors before any task is "done"
-- `npx astro check` — type/astro diagnostics
-- Deploy: `vercel` (preview), `vercel --prod` (production). Domain DNS is at Porkbun — see ARCHITECTURE §8.
+## Commands (Bun)
+- `bun install` — deps (Vercel auto-detects the Bun lockfile and uses it for builds)
+- `bun run dev` — local dev
+- `bun run build` — must pass with zero errors before any task is "done"
+- `bunx astro check` — type/astro diagnostics
+- Deploy: `bunx vercel` (preview), `bunx vercel --prod` (production). Domain DNS is at Porkbun — see ARCHITECTURE §8.
 
 ## Definition of done (per task)
 - `npm run build` clean, `astro check` clean.
