@@ -93,6 +93,13 @@ Distill this into a **voice profile**: a short document of his tone, characteris
 never use, and 2–3 gold-standard example emails written in his true voice (hand-crafted with him). Those
 examples become the few-shot anchor for every generation. **This artifact is the heart of the tool.**
 
+**STATUS: seed corpus received (2026-07-25) — verbatim in `JACOB-DATA.md` §3, with derived voice-profile
+notes.** His Q6/Q7 answers are the gold-standard register (polite, warm, direct); his identity anchors are
+Özil/Messi/"10 = home"; his tic is thank-you repetition (preserve the gratitude, rotate the phrasing).
+**Gaps:** Q3 (casual teammate text) and Q12 (real sent emails) — the unguarded register. Nudge him; without
+it the tool risks sounding uniformly formal. Sends will come from his Gmail (jacobdeja2027@gmail.com); the
+jacobdeja.com address is receive-only forwarding — no SPF/DKIM work needed.
+
 ---
 
 ## 4. The research step (what makes it agentic)

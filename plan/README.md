@@ -18,6 +18,8 @@
 | **AFTER-EFFECTS-GUIDE.md** | Step-by-step AE for a Photoshop user: roto → grade → volt effects → dual-aspect alpha export | current |
 | **ARCHITECTURE-DEPLOYMENT-v0.1.md** | Stack (Astro + GSAP), file structure, contact/PDF/share, Porkbun→Vercel deploy runbook | current |
 | **EMAIL-SERVICE-PLAN-v0.1.md** | The agentic coach-outreach email tool (built after the site) | v0.1 planning |
+| **JACOB-DATA.md** | Verbatim vitals + voice corpus from Jacob, photo inventory + Photoshop plan, gaps | current |
+| **DESIGN-BRIEF.md** | Self-contained brief to hand to the design tool (with the `photo-*.jpeg` files) | current |
 
 Read order for a newcomer: this file → design system → architecture → AE guide → email plan.
 
@@ -25,7 +27,11 @@ Read order for a newcomer: this file → design system → architecture → AE g
 
 ## What's decided (locked)
 
-- **Player identity:** Jacob Deja, #10, center mid. The "10" is a design motif (hero, film label, favicon).
+- **Player identity:** Jacob Deja — 2027, CAM/CDM, right foot, 5'10", The Island FC West (MLS Next HG),
+  Comsewogue HS, **4.0 GPA**, kits white/black/blue. Verbatim source: JACOB-DATA.md. **Jersey number
+  UNCONFIRMED** (he says 10 — "it represents home" — but a game photo shows #12): treat as swappable
+  `#[nn]` motif; confirming it **blocks AE labeling** (JACOB-DATA §2).
+- **No published goals/assists** — untracked. Box score leads with MLS Next · 4.0 · CAM/CDM. Never invent.
 - **Domain:** jacobdeja.com — bought at **Porkbun**, privacy/lock/auto-renew on. DNS stays at Porkbun.
 - **Contact email:** jacob@jacobdeja.com via Porkbun forwarding (set up at launch).
 - **Framework:** **Astro** (static) with a single React island for the scrub. Not Next.js.
@@ -42,9 +48,10 @@ Read order for a newcomer: this file → design system → architecture → AE g
 
 ## What's still open
 
-- Jacob's remaining vitals: kit color, grad year, primary/secondary position, dominant foot, height, club,
-  high school, GPA, key stats.
-- Full highlight-reel host (Mux / YouTube / Vimeo) — drives the film embed.
+- **Jersey number confirmation** (blocks A2's labeling step).
+- Highlight reel (Jacob is cutting it) + host choice (Mux / YouTube / Vimeo).
+- Voice-corpus gaps: Q3 (casual text) + Q12 (real sent emails) — see JACOB-DATA §3/§5.
+- Coach Bowen's confirmed permission to be a reference; about-copy approval (assemble from Q2/Q5/Q8).
 - Exact trim in/out of the move in the source clip (set in AE).
 - alpha WebP vs PNG sequence — final call once AE edge quality is visible.
 - One line of "about" copy in Jacob's voice + which coach references to list.
@@ -56,9 +63,9 @@ Read order for a newcomer: this file → design system → architecture → AE g
 
 ### Track A — Website (do first)
 
-**A0 · Gather the facts** ☐
-Collect Jacob's remaining vitals (above) and pick the film host. Everything else can start in parallel, but
-the site can't ship without these.
+**A0 · Gather the facts** ◐ *(mostly done 2026-07-25 — JACOB-DATA.md)*
+Vitals, photos, and the voice corpus are in. Remaining: jersey number (blocks A2 labeling), the reel + host
+choice, Q3/Q12 voice gaps, coach-reference permission, about-copy approval.
 
 **A1 · Scaffold** ☐ — *ARCHITECTURE §2–3, §8*
 Astro + React + GSAP project. Wire design tokens (DESIGN-SYSTEM §3–4) into `tokens.css`, self-host fonts.
@@ -171,4 +178,33 @@ export settings (accurate), and the Porkbun→Vercel runbook (right).
 
 ---
 
-*Living index. Domain owned, stack locked, footage in hand. Next action: A0 — gather Jacob's remaining vitals.*
+---
+
+## Data drop — 2026-07-25 (Jacob's responses received)
+
+Vitals, four photos, and the voice corpus landed; all captured **verbatim in JACOB-DATA.md** (never
+paraphrase the corpus — the tool learns from his exact words). Docs updated: position corrected to
+**CAM/CDM** everywhere, 2027 locked, box score redefined to lead with MLS Next + 4.0 GPA with **no
+goals/assists line**, jersey number downgraded to **unconfirmed `#[nn]`** pending his answer (blocks AE
+labeling), AE guide warning added, email plan §3 now points at the seed corpus and notes the Gmail-sends
+decision. New **DESIGN-BRIEF.md** created as the self-contained handoff for the design tool, including the
+"Maestro" brand story (his kit wordmark + Özil + "10 = home") and the photo treatment plan (all stills get
+the video's grade: desaturate, crush to #070B09, grain).
+
+---
+
+## Narrative-arc upgrade — 2026-07-25 (evening)
+
+The scrub now uses the **full clip as a five-act scroll story** (DESIGN-SYSTEM §5b): approach → slow-mo spin
+(centerpiece, ~40% of scroll) → strike → ball-at-camera ending in a **code-driven match cut** (volt circle
+expands from the ball into the TITLE CARD: name + ball motif) → **celebration footage as a muted graded loop
+behind the title card** (never scrubbed — it's the emotional payoff and the "teammates love him" message).
+Roto scope stays acts 1–3 only; act 4 is framed footage into the match cut; act 5 is a 2–3s compressed video
+loop. Budget: ~80–100 scrubbed frames total, act-prefixed filenames, progressive per-act loading. AE guide
+and DESIGN-BRIEF updated to match. Design tool: first mockups received and reviewed; strike-glow restraint
+and real-photo placeholder feedback sent.
+
+---
+
+*Living index. Domain owned, stack locked, footage + data in hand. Next actions: confirm the jersey number,
+then A1 (scaffold) + A2 (AE, five-act version) in parallel. Design iterations continue against the brief.*

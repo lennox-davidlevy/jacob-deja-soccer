@@ -9,7 +9,8 @@
 >
 > Companion to `DESIGN-SYSTEM-v0.2.md`. Read §6b of that doc for *what* the look should be; this is *how*.
 >
-> **Player:** Jacob Deja, **#10**. When you label the jersey number in the composite (§4, §8.4), it's **10**.
+> **Player:** Jacob Deja. **⚠️ Jersey number unconfirmed — do NOT label a number in the composite until
+> Jacob confirms what he wears in this video (JACOB-DATA.md §2).** One photo shows #12, he says 10.
 > Volt-mint accent is `#5CFFC0` throughout. Source clip: `jacob-sick-move.mov`, 720×1280, 24fps, HEVC, ~15.4s.
 
 ---
@@ -45,10 +46,13 @@ it's just a workspace — reset it with `Window > Workspace > Reset to Saved Lay
 
 Your source is `jacob-sick-move.mov`: **720×1280 vertical, 24 fps, HEVC, ~15.4 s**. Two prep facts matter.
 
-1. **You only need the ~4–6 seconds of the actual move** (approach → turn → beats the defender →
-   strike → one beat of follow-through). Rotoscoping is per-frame work; every second you don't need is
-   wasted hours. Decide your rough in/out points now by scrubbing the clip in QuickTime and noting the
-   timecodes.
+1. **The whole clip is now used, but only ~part of it gets roto'd** (DESIGN-SYSTEM §5b). Mark SIX act
+   in/out points by scrubbing in QuickTime, following the edit's own speed changes: APPROACH (full speed) /
+   SPIN (slow-mo) / SNAP (brief full-speed) / STRIKE (slow-mo) / BALL-INTO-NET (full speed) / CELEBRATION
+   (full speed). The two slow-mo sections are your dense-frame acts — they carry the scrub. **Roto only acts 1–3** (approach through strike, ~4–6s — the plan below). Act 4 exports as
+   normal framed footage up to the ball's mid-flight (the site's code takes over from there with a match
+   cut). Act 5 (celebration) is NOT frames at all — export it as a short opaque video loop (see §10).
+   Rotoscoping is per-frame work; the acts you don't roto save you days.
 2. **HEVC can be sluggish to scrub in AE.** Optional but recommended: transcode the trimmed section to
    ProRes first so AE is responsive. If you have the ffmpeg from the design doc handy:
    ```bash
@@ -315,6 +319,20 @@ Alpha"** preset is the correct choice if you ever need a single transparent *mov
 Quality with Alpha," **not** the old "Lossless with Alpha," which used the Animation codec and now produces
 QuickTime files that won't play. But for this site, export PNG frames.)
 
+### Additional exports for the staging model (design doc §5c)
+- **Ball path data:** apply AE's point tracker to the ball across acts 2–4; copy the tracked Position
+  keyframes out (or via a script) as per-frame x,y — normalized to the comp size — into a small JSON. The
+  site draws the volt trail from this. One tracker pass, huge payoff.
+- **The net as its own element:** roto/extract the net once (it barely moves) as a single transparent
+  still or short sequence — the site stretches it as the act-4 foreground scrim.
+- **Subject grouping stays as planned:** acts 1–3 roto Jacob + defender + ball together as one foreground
+  (occlusion makes separation misery). The defender's act-2 "dissolve into the void" is done by the site
+  masking/fading the region, OR — cleaner if you're willing — export act 2 as TWO sequences (Jacob-only and
+  defender-only) since the spin is the one act where they separate meaningfully. Your call based on how the
+  roto is going; the single-group export is the safe default.
+- **Direction:** if any act's action doesn't travel left→right, flip it horizontally at export (design doc
+  §5c) — unless kit text is legible at final size.
+
 ### Then hand off to the web pipeline
 The design doc's transcode turns your PNGs into web-sized alpha WebP:
 ```bash
@@ -326,8 +344,14 @@ done
 ```
 **Always downscale in this step** — the AE comps are 1920×1080 / 1080×1920 for compositing quality, but the
 web must never receive frames that large (browser memory, not just bandwidth — design doc §7 has the math).
-Target **~60–90 frames per set, under ~5 MB total per set**. AE gives you 120 at 24fps × 5s; delete every
-other PNG before transcoding — dropping alternate frames is invisible in a scroll scrub and halves everything.
+Target **~80–100 scrubbed frames per set total, allocated per act** (design doc §5b): sparse on the approach
+(~15), dense on the slow-mo spin (~40–50), short on the strike (~10), ~15–20 on ball-at-camera. Thin by
+deleting PNGs before transcoding; name frames with act prefixes (`a1_001…`, `a2_001…`) so the site can load
+acts progressively.
+
+**The celebration (act 5) is a video, not frames:** trim the mobbing/hug to 2–3s, grade it like everything
+else, export H.264 (or WebM), heavily compressed (~0.5–1 MB), muted, no roto. It autoplays as a low-opacity
+loop behind the title card.
 
 ### The poster frame
 Also export the strike frame flattened *with* a dark background (temporarily drop a `#070B09` solid at the
@@ -373,9 +397,11 @@ Before you hand off frames, confirm they're actually transparent:
 ## 13. If AE proves too much: an honest escape hatch
 
 Rotoscoping is legitimately the hardest part of this whole project. If it's eating days:
-- **Skip isolation entirely** and instead just *grade + add effects to the full framed clip* (no
-  transparency), then the site treats it as an opaque scrub (design doc v0.1 approach). Less magical, still
-  very good, a fraction of the work.
+- **Skip isolation entirely** and grade + add effects to the full framed clip (opaque scrub). ⚠️ This
+  hatch is now much weaker than when written: the footage is bright daylight, and framed sunny footage
+  drops awkwardly into a near-black site. If roto truly fails, expect the opaque version to need a heavy,
+  moody grade (deep duotone toward the palette) to sit on the page at all — the transparency is
+  load-bearing for the aesthetic, not just a flourish.
 - Or roto **only the hero seconds** (just the turn + strike) and let the approach be the full frame,
   cutting between them.
 - The transparent composite is the ceiling; a graded opaque scrub is the floor. Both make a coach stop.

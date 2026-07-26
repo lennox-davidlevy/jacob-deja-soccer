@@ -151,12 +151,13 @@ weights (400/500). Never fake-bold the mono.
 
 ```
 [00] STICKY NAV DOTS (right edge) — tiny, --volt active dot
-[01] HERO / IDENTITY      JACOB DEJA huge · #10 · CM · CLASS OF [YEAR] · scroll cue ↓
+[01] HERO / IDENTITY      JACOB DEJA huge · #[nn] · CAM · CLASS OF 2027 · THE ISLAND FC WEST · scroll cue ↓
                           + a quiet "Skip to film →" link, always visible in the hero
-[02] THE SCRUB (sticky, ~350vh) — transparent composite on the coded background. THE SIGNATURE.
-     approach → turn → strike freezes + volt bloom → releases into ↓
+[02] THE SCRUB (sticky, ~550vh) — the FULL clip as a five-act scroll story (see §5b). THE SIGNATURE.
+     approach → spin (centerpiece) → strike + flash → ball-at-camera → MATCH CUT to title card
+     (name + ball) with the celebration loop playing behind it → releases into ↓
 [03] VITALS (box score)   grad year · position · 2nd · foot · height · club · HS · GPA (count-up, --volt)
-[04] FULL FILM            embedded highlight reel, #10 labeled, "game-speed"
+[04] FULL FILM            embedded highlight reel, #[nn] labeled, "game-speed"
 [05] SEE HIM PLAY         upcoming schedule — tournaments, showcases, league fixtures, with dates + kit color
 [06] ABOUT                2–3 sentences, playing style, what he wants, + one strong portrait photo
 [07] CONTACT + REFERENCES copy-paste email/phone, club coach ref, one-pager download
@@ -166,6 +167,75 @@ additions carry real recruiting weight: the **"Skip to film" link** exists becau
 between a busy coach and the film — the spectacle is opt-in depth, not a toll — and the **schedule section**
 exists because coaches decide by watching recruits live; "where can I see him next" is a question the page
 must answer. A coach who bounces after the scrub has still seen name, move, and (with a nudge) vitals.
+
+## 5b. The narrative arc (the full clip, act by act)
+
+The source clip is a complete story: approach → slow-mo spin → strike → ball flying at the camera into the
+net → teammates mobbing him. The scrub uses **all of it**, but not equally — scroll distance is spent where
+the footage is best, and the ending is a designed payoff, not more scrubbing.
+
+The source edit's own speed rhythm is: **full speed → SLOW-MO spin → full-speed snap → SLOW-MO strike →
+full speed ball into net → full speed celebration.** Scroll pacing mirrors that rhythm exactly — the editor
+already did the pacing work; there are TWO slow-mo peaks (spin AND strike), and the ball accelerates.
+
+| Act | Footage speed | Scroll share | Frames | Treatment |
+|---|---|---|---|---|
+| 1 · APPROACH | full speed | ~12% | ~12 sparse | transparent composite, fast scrub — setup |
+| 2 · THE SPIN | **slow-mo** | ~30% | ~35–40 dense | slowest scrub — **centerpiece #1**; trail wraps the arc; defender dissolves into the void |
+| 2b · SNAP | full speed (brief) | ~5% | ~5 | fast palate-cleanser between the two slow moments |
+| 3 · THE STRIKE | **slow-mo** | ~20% | ~20–25 dense | second savored moment — **centerpiece #2**; volt rim + small bloom at impact (≤5%) |
+| 4 · THE BALL | full speed | ~13% | ~12–15 | scrub **accelerates** as the ball comes at the lens — threat builds with speed — into the **code-driven match cut** (volt circle expands from the ball)… |
+| 5 · TITLE CARD + TOGETHER | full speed | ~20% (settle) | 0 scrubbed | …resolving into the **title card** — JACOB DEJA + ball motif — over the **celebration as a muted, graded, low-opacity loop**. Release into VITALS. |
+
+Rules that make it work:
+- **The celebration is never scrubbed.** Scrubbing athletic motion is kinetic; scrubbing a hug is rewinding
+  an emotion. It plays as a normal 2–3s muted loop (heavily compressed, graded into the palette). It's also
+  the recruiting message — coaches recruit kids their teammates love — delivered without copy.
+- **The match cut is code, not footage.** Rotoscoping a motion-blurred ball at the lens is not worth it; a
+  volt circle expanding from the ball's last tracked position is crisper, controllable, and intentional.
+- **Frame budget still rules:** ~80–100 scrubbed frames total across acts 1–4, allocated as above; acts load
+  progressively (preload acts 1–2, fetch 3–4 during the approach). The decoded-window rule (§7) is per-act.
+- **Roto scope:** acts 1–3 only. Act 4 uses framed footage into the match cut; act 5 is opaque graded
+  footage. Mixed composited + framed footage is fine because every asset shares one grade.
+- **Acts align with camera cuts.** The source is an edited multi-angle reel (approach, spin close-up,
+  strike from behind the goal through the netting, celebration are separate shots). Treat each act as its
+  own mini-scene: act transitions in scroll get a beat (telemetry label change, a breath of void) rather
+  than faking continuity across a hard cut. Bonus: the behind-goal angle means the net texture is
+  naturally in frame as the ball arrives — the match cut inherits it for free.
+- **No number is ever captioned on the footage** (he wears a different number in the video than the
+  claimed 10 — JACOB-DATA §2). The number motif lives in the UI only.
+
+## 5c. Staging & choreography (the diorama model)
+
+With every subject roto'd to alpha (Jacob, defender, ball, net, goalie, teammates), the scrub is not a
+video — it's a **diorama**: isolated actors staged on the coded void, with scroll as time. Camera cuts
+become **re-stagings**: one act's subjects fade over a breath of void, the telemetry ticks, the next act's
+subjects enter; the floodlight vignette follows the action's center of gravity.
+
+**Direction law:** the attack always travels **left → right** (reading direction = progress). Mirror any
+shot that fights it — flipped alpha footage is free and invisible at this grade unless kit text reads.
+
+**Act staging:**
+- **A1 · Approach** — Jacob + defender smaller, entering left, moving right. Fast scrub. Establishes space.
+- **A2 · Spin** — the cut-in becomes a **scale jump**: subjects large, center stage, slowest scrub. Volt
+  trail wraps the ball's arc. As Jacob rolls past, **the defender's layer drifts out of the floodlight and
+  dissolves into the void** — he doesn't just get beaten, he leaves the light. Jacob remains.
+- **A3 · Strike** — center stage, the hit, the flash beat (rim + small bloom, ≤5% volt).
+- **A4 · The Ball — POV reversal: the viewer is the goal.** The roto'd **net becomes a full-viewport
+  foreground scrim** (faint volt-tinted mesh); the ball grows from small (at his foot, far) to huge (at the
+  lens). Depth with zero background. Ball hits the lens → volt-circle match cut → title card. Subtext for
+  the coach: *you just got scored on.*
+- **A5 · Title card** over the celebration loop; release into vitals.
+
+**The bidirectional law (non-negotiable in the build):** everything in the scrub is a **pure function of
+scroll progress p** — no fire-once animations, no stateful triggers. The trail renders the ball's path up
+to p (retracts on scroll-up); the flash is an opacity curve around its p; the defender's dissolve is a
+function of p. Scroll down: he scores. Scroll up: the ball returns to his foot. Only the act-5 celebration
+loop is time-based (plays whenever visible).
+
+**Ball path as data:** AE's point tracker exports the ball's x,y per frame; the site draws the volt trail
+in code from those coordinates — crisper than baked pixels, rewinds for free, and the ball never needs its
+own roto layer through occluded frames.
 
 ---
 
@@ -380,17 +450,21 @@ badly, and the link preview is the first impression when a coach forwards the si
 
 ## 11. Copy & metadata (locked names; bracketed facts still TBD)
 
-**Locked:** player is **Jacob Deja**, jersey **#10**. Domain is **jacobdeja.com**. Contact email will be
-**jacob@jacobdeja.com** (via forwarding). The **10** is a recurring motif — the playmaker's number — and
-should surface in the design (hero, film label, favicon), though the domain deliberately stays name-only.
+**Locked:** player is **Jacob Deja**, CAM/CDM, Class of 2027, The Island FC West (MLS Next HG),
+Comsewogue HS, 4.0 GPA, 5'10", right foot. Domain is **jacobdeja.com**; contact **jacob@jacobdeja.com**
+(via forwarding). Full verbatim data: `JACOB-DATA.md`.
 
-- **Title / OG:** `Jacob Deja · #10 · CM · Class of [year] — Recruiting`
+**⚠️ Jersey number is UNCONFIRMED.** The design treats the number as a swappable motif (`#[nn]`): he says
+10 ("the number to my house — it represents home", a line worth using), but the one game photo shows #12.
+Confirm his number in the hero video + this season before AE labeling or design lock (JACOB-DATA §2).
+
+- **Title / OG:** `Jacob Deja · CAM · Class of 2027 — Recruiting`
 - **OG description:** `Center mid, [Club]. Watch the film.`
-- **Hero:** `JACOB DEJA` / eyebrow `#10 · CENTER MID · CLASS OF [YEAR] · [CLUB]`
+- **Hero:** `JACOB DEJA` / eyebrow `#[nn] · CAM · CLASS OF 2027 · THE ISLAND FC WEST (MLS NEXT)`
 - **Scrub caption (tiny, optional):** `[event], [month year]`
-- **Vitals labels (mono, uppercase):** GRAD YEAR · POSITION · SECOND POSITION · DOMINANT FOOT · HEIGHT · CLUB ·
-  HIGH SCHOOL · GPA
-- **Film heading:** `Full film` / sub `#10, [color] kit. Game-speed.`
+- **Vitals (mono, uppercase):** CLASS OF 2027 · CAM / CDM · RIGHT FOOT · 5'10" · MLS NEXT — THE ISLAND FC
+  WEST · COMSEWOGUE HS · 4.0 GPA. **No goals/assists line** — untracked (JACOB-DATA §1); never invent one.
+- **Film heading:** `Full film` / sub `#[nn], white/black/blue kits. Game-speed.`
 - **Contact:** `jacob@jacobdeja.com` · `[phone]` · `Club coach reference on request`
 
 Plain and specific. No hype adjectives — the film is the hype.
@@ -414,11 +488,12 @@ Plain and specific. No hype adjectives — the film is the hype.
 
 ## 13. Open questions to resolve before v1
 
-**Resolved:** name = Jacob Deja, number = #10, domain = jacobdeja.com (bought, Porkbun).
+**Resolved:** all vitals (see JACOB-DATA.md) — 2027, CAM/CDM, right foot, 5'10", The Island FC West
+(MLS Next HG), Comsewogue HS, 4.0 GPA, kits white/black/blue. Domain jacobdeja.com (Porkbun).
 
 **Still open:**
-- Remaining vitals: kit color, grad year, positions (primary/secondary), dominant foot, height, club, HS, GPA.
-- Full highlight reel host (Mux vs YouTube vs Vimeo) — affects [04].
+- **Jersey number** (blocks AE labeling — JACOB-DATA §2).
+- Highlight reel (Jacob is cutting it) + host choice (Mux vs YouTube vs Vimeo) — affects [04].
 - Exact trim in/out of the move in the source (you set in AE).
 - Final call on alpha WebP vs PNG sequence once you see edge quality out of AE.
 - One line of about copy in Jacob's voice + which references to list.

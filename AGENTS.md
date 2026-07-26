@@ -9,6 +9,18 @@ read them before writing code, and re-read the relevant section before each phas
 3. `plan/ARCHITECTURE-DEPLOYMENT-v0.1.md` — stack, file structure, content pipeline, deploy runbook.
 4. `plan/AFTER-EFFECTS-GUIDE.md` — footage pipeline (human-executed; code consumes its outputs).
 5. `plan/EMAIL-SERVICE-PLAN-v0.1.md` — Track B, separate build, do not start until Track A ships.
+6. `plan/JACOB-DATA.md` — verbatim vitals + voice corpus + photo inventory. The ONLY source for real data.
+7. `plan/DESIGN-BRIEF.md` — the brief the mockups were designed against.
+
+## Design reference
+Mockups live in `design/` (HTML and/or screenshots exported from Claude Design). They are authoritative
+for **layout, spacing, and type treatment ONLY**. All data, copy, URLs, emails, dates, and durations in
+them are **PLACEHOLDER** — real values come from `plan/` docs (especially JACOB-DATA.md) and the content
+sheet. Known fakes in the mockups: "4:32 · 1080p", "SPRING 2026 HIGHLIGHTS", all fixture dates,
+"RESPONDS FAST", and `contact@jacobdeja.com` (the real address is `jacob@jacobdeja.com`). The stick-figure
+scrub frames are choreography diagrams — real AE alpha frames replace them. If a design HTML export
+exists, treat it as visual reference, NOT starter code: the site is built from scratch in Astro per the
+plans. Where `design/` and `plan/` conflict on behavior or data, `plan/` wins.
 
 ## Stack (locked — do not relitigate)
 - **Astro** (static output) + **React islands** + TypeScript strict. NOT Next.js.
@@ -26,6 +38,16 @@ read them before writing code, and re-read the relevant section before each phas
   `createImageBitmap` window (±10–15 frames, LRU). Math in DESIGN-SYSTEM §7. This is the #1 way to
   silently ship something that crashes iOS Safari.
 - Canvas scrub: `clearRect` before every draw (frames are transparent), rAF-throttled, draw-on-change only.
+- The scrub is a **five-act diorama** (DESIGN-SYSTEM §5b/§5c): act-based frame loading (act-prefixed
+  filenames), scroll pacing mirrors the edit's rhythm (two slow-mo peaks: spin AND strike), the act-4
+  match cut is code-driven (volt circle from the tracked ball position), act-5 celebration is a muted
+  `<video>` loop — never scrubbed frames.
+- **Everything in the scrub is a pure function of scroll progress p.** No fire-once animations, no
+  stateful triggers. Scroll up must rewind everything (trail retracts, flash un-flashes, defender
+  un-dissolves). The only time-based element is the celebration loop.
+- The volt ball-trail renders in code from the AE-tracked ball-path JSON, not from baked pixels.
+- **No jersey number is ever rendered over the footage** — the number motif (currently #10, still
+  unconfirmed) lives in UI text only, as a single swappable constant.
 - `prefers-reduced-motion` → no scrub, static `poster.jpg`, page fully usable. Non-negotiable.
 - Frame sets: ~60–90 frames, <5 MB compressed per set, ≤1280px long edge, load ONE set via matchMedia.
 - Colors/type come from `tokens.css` only. The accent is `#5CFFC0` (`--volt`) — never a different green.
@@ -54,8 +76,10 @@ read them before writing code, and re-read the relevant section before each phas
   surface problems there immediately rather than working around them.
 - Placeholder data is fine until Jacob's real vitals arrive (A0); mark placeholders `[TBD]` so they're
   greppable.
-- Assets land in `public/frames/{landscape,portrait}/`, `public/poster.jpg`, `public/og-image.jpg` — produced
-  by the human via AFTER-EFFECTS-GUIDE. If they don't exist yet, build against a generated placeholder
-  sequence (solid shapes on transparency) with the same naming so the pipeline is testable end to end.
+- Assets land in `public/frames/{landscape,portrait}/` (act-prefixed: `a1_001.webp`…), `public/poster.jpg`,
+  `public/og-image.jpg`, `public/celebration.mp4`, and `public/ball-path.json` — produced by the human via
+  AFTER-EFFECTS-GUIDE. If they don't exist yet, build against generated placeholders with the same naming
+  (solid shapes on transparency for frames; a synthetic ball-path JSON) so the whole pipeline, including
+  the match cut and trail, is testable end to end before any real footage lands.
 - Don't add dependencies beyond the locked stack without flagging why.
 - Don't restructure the plan docs; append to plan/README.md's changelog instead.
