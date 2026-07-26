@@ -1,8 +1,7 @@
 # AGENTS.md — jacobdeja.com
 
-Recruiting website for Jacob Deja (CAM/CDM, Class of 2027; jersey number unconfirmed — see constraints).
-The plan docs live in `plan/` and are the source of truth — read them before writing code, and re-read
-the relevant section before each phase.
+Recruiting website for Jacob Deja (#10, center mid). The plan docs live in `plan/` and are the source of truth —
+read them before writing code, and re-read the relevant section before each phase.
 
 ## Read order
 1. `plan/README.md` — master TODO (tasks A0–A9, B1–B6), current status, changelog. Start every session here.
@@ -14,21 +13,14 @@ the relevant section before each phase.
 7. `plan/DESIGN-BRIEF.md` — the brief the mockups were designed against.
 
 ## Design reference
-The mockup is **`design/Jacob Deja - Hero + Scrub.dc.html`** (a Claude Design `.dc.html` export, with its
-runtime `design/support.js`; `design/uploads/` holds the brief + photos it was generated from). Open the
-HTML in a browser to view it. It is a **self-contained Design artifact, NOT starter code**: read it for
-layout, spacing, and type treatment ONLY, and rebuild from scratch in Astro per the plans. Never import
-from it, copy its JS/CSS, or reuse `support.js` in the site.
-
-**Coverage:** the mockup covers the **hero + scrub only.** No mockups exist yet for vitals, film, schedule,
-about, or contact — for those sections, follow the page structure in `plan/DESIGN-SYSTEM-v0.2.md` §5 and
-`plan/DESIGN-BRIEF.md`; don't hunt for designs that don't exist.
-
-All data, copy, URLs, emails, dates, and durations in the mockup are **PLACEHOLDER** — real values come
-from `plan/` docs (especially JACOB-DATA.md) and the content sheet. Known fakes in the mockup:
-"4:32 · 1080p", "SPRING 2026 HIGHLIGHTS", all fixture dates, "RESPONDS FAST", and `contact@jacobdeja.com`
-(the real address is `jacob@jacobdeja.com`). The stick-figure scrub frames are choreography diagrams —
-real AE alpha frames replace them. Where `design/` and `plan/` conflict on behavior or data, `plan/` wins.
+Mockups live in `design/` (HTML and/or screenshots exported from Claude Design). They are authoritative
+for **layout, spacing, and type treatment ONLY**. All data, copy, URLs, emails, dates, and durations in
+them are **PLACEHOLDER** — real values come from `plan/` docs (especially JACOB-DATA.md) and the content
+sheet. Known fakes in the mockups: "4:32 · 1080p", "SPRING 2026 HIGHLIGHTS", all fixture dates,
+"RESPONDS FAST", and `contact@jacobdeja.com` (the real address is `jacob@jacobdeja.com`). The stick-figure
+scrub frames are choreography diagrams — real AE alpha frames replace them. If a design HTML export
+exists, treat it as visual reference, NOT starter code: the site is built from scratch in Astro per the
+plans. Where `design/` and `plan/` conflict on behavior or data, `plan/` wins.
 
 ## Stack (locked — do not relitigate)
 - **Astro** (static output) + **React islands** + TypeScript strict. NOT Next.js.
@@ -72,7 +64,7 @@ real AE alpha frames replace them. Where `design/` and `plan/` conflict on behav
 - Deploy: `bunx vercel` (preview), `bunx vercel --prod` (production). Domain DNS is at Porkbun — see ARCHITECTURE §8.
 
 ## Definition of done (per task)
-- `bun run build` clean, `bunx astro check` clean.
+- `npm run build` clean, `astro check` clean.
 - Mobile-first verified: the design must work at 390px width and on desktop. iOS Safari is the target
   device — when in doubt, optimize for the phone.
 - Lighthouse targets before ship (task A8): mobile performance 90+, accessibility 100.
