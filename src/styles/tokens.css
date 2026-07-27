@@ -1,0 +1,31 @@
+:root {
+  /* Canvas / structure — "stadium dark" */
+  --bg-void:      #070B09;  /* page background, near-black with a green undertone. Jacob floats on THIS. */
+  --bg-panel:     #0C1512;  /* raised sections, stat cards */
+  --bg-elevated:  #12201B;  /* hover / active surfaces */
+  --hairline:     #1E2F28;  /* 0.5px borders, dividers */
+
+  /* Turf greens — the brand ramp / atmosphere */
+  --turf-900:     #0A2019;
+  --turf-700:     #0F3D2E;
+  --turf-500:     #1D9E75;
+  --turf-300:     #4FD9A6;
+
+  /* Accent — "floodlight" electric mint. Lives in BOTH the AE comp and the CSS. Sparingly. */
+  --volt:         #5CFFC0;  /* ball trail, floor glow, rim light, active stat, strike flash */
+  --volt-dim:     #2FBF8F;
+
+  /* Text on dark */
+  --text-hi:      #F3F7F5;
+  --text-mid:     #A9BBB4;
+  --text-lo:      #6A7E77;
+
+  /* Kit white for the frozen-strike bloom */
+  --flash:        #FFFFFF;
+
+  --fs-hero:   clamp(3.5rem, 12vw, 9rem);
+  --fs-h2:     clamp(1.75rem, 4vw, 3rem);
+  --fs-stat:   clamp(2.5rem, 6vw, 4.5rem);
+  --fs-body:   clamp(1rem, 1.2vw, 1.15rem);
+  --fs-label:  0.8125rem;   /* uppercase, tracked +0.12em */
+}

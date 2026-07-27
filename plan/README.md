@@ -67,7 +67,7 @@ Read order for a newcomer: this file → design system → architecture → AE g
 Vitals, photos, and the voice corpus are in. Remaining: jersey number (blocks A2 labeling), the reel + host
 choice, Q3/Q12 voice gaps, coach-reference permission, about-copy approval.
 
-**A1 · Scaffold** ☐ — *ARCHITECTURE §2–3, §8*
+**A1 · Scaffold** ☑ *(completed 2026-07-27)* — *ARCHITECTURE §2–3, §8*
 Astro + React + GSAP project. Wire design tokens (DESIGN-SYSTEM §3–4) into `tokens.css`, self-host fonts.
 Deploy an empty dark page to a Vercel preview URL to prove the pipeline. Don't connect the domain yet.
 
@@ -77,16 +77,16 @@ The long pole — start early, runs parallel to A1–A3. Trim → rotoscope Jaco
 landscape + portrait → export two alpha sequences + a poster frame → transcode to alpha WebP (<5MB/set).
 Label the jersey as **#10**.
 
-**A3 · Coded background** ☐ — *DESIGN-SYSTEM §7, ARCHITECTURE §4*
+**A3 · Coded background** ☑ *(completed 2026-07-27)* — *DESIGN-SYSTEM §7, ARCHITECTURE §4*
 CSS floodlight radial + turf gradient + grain + volt strike-bloom. Build before the scrub so there's a world
 to composite onto.
 
-**A4 · The scrub (the hard part — do it early)** ☐ — *DESIGN-SYSTEM §7, ARCHITECTURE §4*
+**A4 · The scrub (the hard part — do it early)** ☑ *(placeholder pipeline completed 2026-07-27)* — *DESIGN-SYSTEM §7, ARCHITECTURE §4*
 `ScrubStage.tsx` React island: `useGSAP` + ScrollTrigger pin/scrub → canvas draw, landscape set, desktop.
 Verify: `clearRect` each draw (no smearing), rAF throttle, draw-on-change only. This is the whole project —
 if this isn't smooth, nothing else matters.
 
-**A5 · Responsive + reduced-motion** ☐ — *DESIGN-SYSTEM §8, ARCHITECTURE §4*
+**A5 · Responsive + reduced-motion** ◐ *(implemented 2026-07-27; real-iPhone verification pending)* — *DESIGN-SYSTEM §8, ARCHITECTURE §4*
 `gsap.matchMedia()`: portrait set on phones, landscape on laptops. Reduced-motion → static poster. Test on a
 **real iPhone** (momentum scroll, address-bar resize) — where scroll bugs live.
 
@@ -203,6 +203,21 @@ Roto scope stays acts 1–3 only; act 4 is framed footage into the match cut; ac
 loop. Budget: ~80–100 scrubbed frames total, act-prefixed filenames, progressive per-act loading. AE guide
 and DESIGN-BRIEF updated to match. Design tool: first mockups received and reviewed; strike-glow restraint
 and real-photo placeholder feedback sent.
+
+---
+
+## A1/A3–A5 implementation — 2026-07-27
+
+Built the static Astro/React/GSAP scaffold, exact design tokens, self-hosted fonts, and the coded stadium
+background. The five-act scrub now runs end to end against reproducible generated stand-ins: act-based
+portrait/landscape alpha WebP loading, one rAF-throttled canvas, bounded ±10-frame `createImageBitmap` LRU,
+tracked/reversible ball trail, accelerated act 4, code-driven match cut, and the act-5 celebration/title
+payoff. Reduced motion requests no scrub assets and renders the poster directly; automated Chromium checks
+covered 390px/desktop selection, reverse scrolling, rapid scroll and aspect changes, failed-frame fallback,
+and delayed path loading. `astro check` and the static build are clean; each frame set is ~2 MB. Remaining
+before A5 fully closes: verify it on a real iPhone Safari. The A1 pipeline is proven at
+`jacob-deja-soccer-jk8f5avvz-david-levys-projects-7b271567.vercel.app` (Vercel-authenticated preview).
+A2 real footage remains untouched and can replace the stand-ins under the same contract.
 
 ---
 

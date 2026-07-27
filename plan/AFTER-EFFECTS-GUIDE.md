@@ -3,14 +3,15 @@
 ## From raw phone footage to a transparent, stylized, web-ready frame sequence
 
 > Written for someone fluent in Photoshop who has never opened After Effects.
-> Goal: isolate Jacob (+ ball, defender, net) onto a **transparent** background, stylize it with
+> Goal: isolate Jacob (+ the visible ball, defender, and any essential foreground subjects) onto a
+> **transparent** background, stylize it with
 > the volt-mint effects from the design system, and export two clean alpha sequences (landscape +
 > portrait) that the website composites onto its own coded background.
 >
 > Companion to `DESIGN-SYSTEM-v0.2.md`. Read §6b of that doc for *what* the look should be; this is *how*.
 >
-> **Player:** Jacob Deja. **⚠️ Jersey number unconfirmed — do NOT label a number in the composite until
-> Jacob confirms what he wears in this video (JACOB-DATA.md §2).** One photo shows #12, he says 10.
+> **Player:** Jacob Deja. **Do NOT add a jersey-number label to the composite.** His number is unconfirmed,
+> and the final architecture keeps the swappable number motif in website UI only (JACOB-DATA.md §2).
 > Volt-mint accent is `#5CFFC0` throughout. Source clip: `jacob-sick-move.mov`, 720×1280, 24fps, HEVC, ~15.4s.
 
 ---
@@ -89,11 +90,11 @@ Your source is `jacob-sick-move.mov`: **720×1280 vertical, 24 fps, HEVC, ~15.4 
 You'll do these in order. Each has its own section below.
 
 ```
-1. Roto — isolate Jacob + ball + defender + net onto transparent      (§4–5)  ← the hard part
+1. Roto acts 1–3 — isolate Jacob + visible ball + defender            (§4–5)  ← the hard part
 2. Clean the matte edges                                               (§6)
 3. Grade the subjects (crush blacks, cool midtones, desaturate)        (§7)
-4. Build the volt effects (ball trail, floor glow, rim light, strike)  (§8)
-5. Frame for two aspects (landscape + portrait)                        (§9)
+4. Build AE-owned effects (floor glow, rim light, strike flash)        (§8)
+5. Frame + track for two aspects (landscape + portrait)                (§9)
 6. Export two alpha sequences + a poster frame                         (§10)
 7. Sanity-check the alpha                                              (§11)
 ```
@@ -126,22 +127,30 @@ Brush, the more documented path.
 8. **Do the whole trimmed range** forward from your start frame. (You can also go backward from the start
    frame with `Page Up`.)
 
-### The four subjects — a decision
-You need Jacob, the ball, the defender, and the net. Two approaches:
+### Which subjects actually need roto
+For acts 1–3, you need Jacob, the visible ball, and the defender. Include the goalie only if he appears in
+those acts and materially helps the shot read; there is no blanket goalie requirement. Act 4 is framed
+footage, not a full roto job. Extract the net separately for the act-4 foreground handoff described in §10.
 
-- **Simplest: one matte for everything you want to keep.** Roto Jacob + ball + defender + net together as
+Two approaches for the acts 1–3 foreground:
+
+- **Simplest: one matte for everything you want to keep.** Roto Jacob + visible ball + defender together as
   a single foreground. Fastest, and since they're all "the play," it usually reads fine.
 - **Cleaner but more work: separate mattes on duplicate layers.** Duplicate the footage layer
-  (`Cmd/Ctrl+D`) once per subject, roto each layer to a different subject, so you can (for example) put the
-  ball trail *behind* the ball but *in front* of the net. Do this only if you find you need that control.
+  (`Cmd/Ctrl+D`) once per subject and roto each layer independently. Do this only if you need independent
+  control over the defender dissolve or a difficult occlusion.
 
-Start with the simple approach. Upgrade to separate layers only for the ball if the trail effect (§8)
-needs to sit behind it.
+Start with the simple approach. The website draws the trail behind the alpha foreground, so the ball does
+not need its own layer just for trail ordering. For act 2, put the defender on his own **internal AE layer**
+if that is necessary to animate his opacity cleanly; the final export still flattens Jacob, ball, and the
+fading defender into one alpha sequence, so it rewinds naturally with the scrub. Do not deliver extra
+subject sequences without coordinating a matching harness change first.
 
 ### The ball is the tricky one
 It's small and fast. On the strike it may be a motion-blurred streak. Don't fight to get a razor edge on
 those frames — a soft/blurred ball reads as *speed*, which you want. If Roto loses it entirely on 2–3
-strike frames, you'll paint it back in §8 with the trail effect anyway.
+strike frames, use a small ball bloom at impact rather than spending hours chasing a perfect edge. The
+code-drawn trail is not a substitute for the visible ball itself.
 
 ### Freeze when done
 When the whole range looks right, click **Freeze** (the Freeze button in the Layer panel, or in Effect
@@ -221,26 +230,18 @@ it's the move that makes him feel *on the page, not over it*.
 ## 8. The volt effects (where "sick" is won)
 
 All effects use the design system's accent, **volt-mint `#5CFFC0`**, so the video's accent and the site's
-accent are literally one color. Build these on **new layers above** the graded footage. Keep it restrained —
-one of each, not a light show. (Design doc §6b.)
+accent are literally one color. Build the AE-owned effects below on **new layers above** the graded footage.
+Keep them restrained—one of each, not a light show. (Design doc §6b.)
 
-### 8.1 Ball motion trail — the highest-impact effect
-Three ways, easiest first:
+### 8.1 Ball trail — track it, do not bake it
+The scaffold now draws the volt trail on its single canvas from ball-position data. **Do not add Echo,
+particles, a shape trail, or a baked glow streak to the exported frames.** A baked trail would double with
+the coded trail and would not retract correctly when the coach scrolls upward.
 
-- **Easiest (Echo):** duplicate the ball (or the whole subject) layer, apply `Effect > Time > Echo` to the
-  copy. Set **Echo Time** small negative (−0.02), **Number of Echoes** 4–8, **Decay** ~0.6, **Echo
-  Operator** *Add*. Then tint the echoes volt: add `Effect > Color Correction > Tritone` or a `Tint` and
-  push it to `#5CFFC0`, or a `Fill` effect set to volt on that echo layer, and lower its opacity. This
-  smears a glowing trail behind the moving ball.
-- **Cleaner (hand-animated shape trail):** with the Pen tool, draw a path along the ball's route across the
-  turn. Apply a **Stroke** effect (or use a shape layer stroke), color it `#5CFFC0`, and use **Trim
-  Paths** (add to a shape layer: *Add > Trim Paths*) keyframed 0→100% so the line *draws on* following the
-  ball, then trails off. Add a **Glow** effect on top. This is the "designed streak" look.
-- **Best (Trapcode Particular)** if you own it: emit volt particles from the ball's position (parented to a
-  tracked null). Overkill unless you're comfortable; the two above look great.
-
-Add `Effect > Stylize > Glow` to whichever trail you build. Set glow color to volt, threshold/radius to
-taste. The glow is what makes it read as *light*, not paint.
+Your AE responsibility is to track the center of the real ball accurately. The path should follow the ball
+through the spin, pass through the exact boot–ball contact position, and continue through act 4 to the last
+usable on-screen ball position. That final point is also the origin of the coded match-cut circle. The exact
+tracking and JSON export workflow is in §9a.
 
 ### 8.2 Floor contact glow (anchors the turn)
 Jacob's planted foot on the cut needs a floor that doesn't exist. Make a **new solid** (`Layer > New >
@@ -255,14 +256,14 @@ bright edge shows, blending mode **Add**, low opacity. The result is a faint vol
 contour. This does double duty: it's stylish *and* it visually papers over any imperfect roto edge.
 
 ### 8.4 The strike (the release beat)
-At the strike frame (~85% through the clip, matching the site's `strikeAt: 0.85`):
-- **Flash:** a full-frame white or volt **solid**, blending mode Add, Opacity keyframed to spike for 2–3
-  frames then fall. This is the "hit."
-- **Trail burst:** ramp the ball trail's glow/particle count up for that instant.
+At the actual boot–ball contact frame (do not place it from an old website percentage):
+- **Flash:** a small white/volt **masked solid** centered on the ball/contact area, heavily feathered,
+  blending mode Add, Opacity keyframed to spike for 2–3 frames then fall. Do not make the alpha frame
+  full-screen opaque—the website supplies the wider background bloom.
 - **Optional ball bloom:** on the 1–2 struck-ball frames, add a small bright `Glow`/white blob so the ball
   reads as exploding off his foot. This is also where you paint the ball back if roto lost it.
 
-> Restraint rule: volt should occupy ~5% of the frame at rest. One trail, one floor glow, one rim light,
+> Restraint rule: volt should occupy ~5% of the frame at rest. One coded trail, one floor glow, one rim light,
 > one strike flash. If it looks like a fireworks ad, delete an effect. "Remove one accessory before you leave."
 
 ---
@@ -280,13 +281,125 @@ is transparent, you're only re-*placing* the subjects, not rebuilding a scene.
 2. **Landscape comp:** `Composition > New Composition`, 1920×1080, 24 fps, same duration. Drag
    `JACOB_COMPOSITE` in. Scale/position it so Jacob sits center-left with room on the right for the strike
    to travel into (that negative space is where the site's stats resolve). Because the comp background is
-   empty, everything around him is transparent — perfect.
-3. **Portrait comp:** `Composition > New Composition`, 1080×1920 (or 1080×1350 for 4:5), 24 fps. Drag the
+   empty, everything around him is transparent — perfect. Name this comp `LANDSCAPE_EXPORT`.
+3. **Portrait comp:** `Composition > New Composition`, **1080×1920**, 24 fps. Drag the
    *same* `JACOB_COMPOSITE` in. Re-position so the move reads top-to-bottom and he's vertically centered.
-4. You now have two comps pointing at one source of truth. Fix an effect once in `JACOB_COMPOSITE` and both
+   Name this comp `PORTRAIT_EXPORT`.
+4. **Add act 4 to each export comp:** place the graded original act-4 footage after the act-3 alpha segment,
+   framed normally through the ball's last usable mid-flight position. Reframe it separately for each aspect;
+   do not roto the flying ball. These frames are intentionally opaque and temporarily cover the coded
+   background; the production integration draws the coded trail over that footage, the separate net over
+   the trail, and then the match-cut circle. Keep the net extraction as the foreground deliverable in §10.
+5. You now have two comps pointing at one source of truth. Fix an effect once in `JACOB_COMPOSITE` and both
    aspects update.
 
 > Keep the subjects a little inside the frame edges in both — the site may crop a few percent responsively.
+
+### Direction for this clip
+Jacob enters from the right in the source. The design stages progress left→right, so horizontally flip the
+final export comps unless readable kit text makes the mirror visibly false. Make this decision **before**
+the tracking pass below. Do not mirror only some frames within an act.
+
+### 9a. Track the ball in each final aspect comp
+Landscape and portrait use different crops, so one normalized path cannot align perfectly with both. Track
+after final mirroring, scaling, and positioning. The safest beginner workflow is to track temporary flattened
+reference renders, so the tracker sees the exact pixels and coordinates the website will receive:
+
+1. Render `LANDSCAPE_EXPORT` once as a temporary full-size H.264 or ProRes reference (no alpha needed),
+   re-import it, and make a comp from that file named `LANDSCAPE_TRACK`. Do not scale, move, or mirror the
+   imported layer in this tracking comp—it must remain 100%, centered, and the same dimensions/frame rate.
+2. Create `Layer > New > Null Object`; name it `BALL_TRACK_EXPORT`. Leave it unparented, 2D, with ordinary
+   (not separated-dimension) Position.
+3. Select the flattened reference layer, then `Animation > Track Motion`. Enable **Position** only.
+4. Put the inner tracking box tightly around the ball and the outer search box just large enough to cover
+   its movement between frames. Analyze forward. Stop and correct the box whenever it drifts.
+5. `Edit Target…` → choose `BALL_TRACK_EXPORT` → **Apply**, X and Y. Scrub the comp and verify the null stays
+   on the ball center. At impact it must sit on the ball at Jacob's foot—not beside it.
+6. Repeat from a temporary render of `PORTRAIT_EXPORT` in a `PORTRAIT_TRACK` comp.
+7. Select the `BALL_TRACK_EXPORT` null and run the exporter below once per tracking comp. Save the outputs as
+   `ball-track-landscape.raw.json` and `ball-track-portrait.raw.json`.
+
+Save this as `export-ball-track.jsx`, then run it from `File > Scripts > Run Script File…`:
+
+```jsx
+(function () {
+  var comp = app.project.activeItem;
+  if (!(comp instanceof CompItem) || comp.selectedLayers.length !== 1) {
+    alert("Open a tracking comp and select its BALL_TRACK_EXPORT null.");
+    return;
+  }
+
+  var layer = comp.selectedLayers[0];
+  if (layer.name !== "BALL_TRACK_EXPORT" || layer.parent !== null || layer.threeDLayer) {
+    alert("Select the unparented 2D null named BALL_TRACK_EXPORT.");
+    return;
+  }
+
+  var position = layer.property("ADBE Transform Group").property("ADBE Position");
+  if (!position || position.dimensionsSeparated || position.numKeys < 2) {
+    alert("BALL_TRACK_EXPORT needs ordinary 2D Position tracking keyframes.");
+    return;
+  }
+
+  var aspect = comp.width > comp.height ? "landscape" : "portrait";
+  var displayStartFrame = typeof comp.displayStartFrame === "number"
+    ? comp.displayStartFrame
+    : Math.round(comp.displayStartTime / comp.frameDuration);
+  var firstFrame = Math.round(position.keyTime(1) / comp.frameDuration) - displayStartFrame;
+  var lastFrame = Math.round(position.keyTime(position.numKeys) / comp.frameDuration) - displayStartFrame;
+  var points = [];
+
+  for (var frame = firstFrame; frame <= lastFrame; frame += 1) {
+    var time = (displayStartFrame + frame) * comp.frameDuration;
+    var value = position.valueAtTime(time, false);
+    var x = value[0] / comp.width;
+    var y = value[1] / comp.height;
+    if (x < 0 || x > 1 || y < 0 || y > 1) {
+      alert("Track leaves the comp at source frame " + frame + ". Fix or trim the tracking range.");
+      return;
+    }
+    points.push({
+      sourceFrame: frame,
+      x: Math.round(x * 1000000) / 1000000,
+      y: Math.round(y * 1000000) / 1000000
+    });
+  }
+
+  var output = File.saveDialog("Save raw ball track", "JSON:*.json");
+  if (!output) return;
+  output.encoding = "UTF-8";
+  if (!output.open("w")) {
+    alert("Could not open the output file.");
+    return;
+  }
+
+  var lines = [
+    "{",
+    "  \"version\": 1,",
+    "  \"coordinateSpace\": \"normalized\",",
+    "  \"aspect\": \"" + aspect + "\",",
+    "  \"width\": " + comp.width + ",",
+    "  \"height\": " + comp.height + ",",
+    "  \"frameRate\": " + comp.frameRate + ",",
+    "  \"points\": ["
+  ];
+  for (var i = 0; i < points.length; i += 1) {
+    var point = points[i];
+    lines.push("    { \"sourceFrame\": " + point.sourceFrame + ", \"x\": " + point.x +
+      ", \"y\": " + point.y + " }" + (i < points.length - 1 ? "," : ""));
+  }
+  lines.push("  ]", "}");
+  output.write(lines.join("\n"));
+  output.close();
+  alert("Ball track exported: " + output.fsName);
+}());
+```
+
+These are intentionally **raw per-source-frame tracks**. Do not manually delete points or renumber them.
+The web handoff step thins the PNG frames and both tracks together so every final path point still matches
+the exact displayed frame. Handing over a track that was thinned independently is how the trail ends up
+beside the ball. Raw files use `sourceFrame`; they are **not** dropped into `public/` directly. Integration
+converts the retained samples to the runtime's final zero-based `frame` indices.
 
 ---
 
@@ -320,16 +433,19 @@ Quality with Alpha," **not** the old "Lossless with Alpha," which used the Anima
 QuickTime files that won't play. But for this site, export PNG frames.)
 
 ### Additional exports for the staging model (design doc §5c)
-- **Ball path data:** apply AE's point tracker to the ball across acts 2–4; copy the tracked Position
-  keyframes out (or via a script) as per-frame x,y — normalized to the comp size — into a small JSON. The
-  site draws the volt trail from this. One tracker pass, huge payoff.
+- **Ball path data:** hand off both raw aspect tracks from §9a. The web integration combines and reindexes
+  them into `public/ball-path.json` while thinning the matching frame sequences. The production JSON keeps
+  separate landscape and portrait paths because the final crops differ.
 - **The net as its own element:** roto/extract the net once (it barely moves) as a single transparent
-  still or short sequence — the site stretches it as the act-4 foreground scrim.
+  still or short sequence. It must sit in front of the coded trail during act 4. The current generated
+  stand-in flattens a fake net only to exercise choreography; the production harness needs this separate
+  net asset wired when the real extraction lands. Hand off the straight-alpha source as
+  `net-foreground.png` (or `net-foreground_[####].png` only if it genuinely moves).
 - **Subject grouping stays as planned:** acts 1–3 roto Jacob + defender + ball together as one foreground
-  (occlusion makes separation misery). The defender's act-2 "dissolve into the void" is done by the site
-  masking/fading the region, OR — cleaner if you're willing — export act 2 as TWO sequences (Jacob-only and
-  defender-only) since the spin is the one act where they separate meaningfully. Your call based on how the
-  roto is going; the single-group export is the safe default.
+  export (occlusion makes separation misery). The defender may live on a separate internal AE layer during
+  act 2 so you can animate his dissolve, but flatten that layer into the same final alpha sequence. If you
+  want to deliver Jacob-only and defender-only sequences instead, stop and get the harness contract changed
+  before exporting them.
 - **Direction:** if any act's action doesn't travel left→right, flip it horizontally at export (design doc
   §5c) — unless kit text is legible at final size.
 
@@ -342,15 +458,24 @@ for f in ae_out_landscape/*.png; do
   cwebp -q 82 -alpha_q 90 -resize 1280 0 "$f" -o "frames_landscape/$(basename "${f%.png}").webp"
 done
 ```
+This loop demonstrates the compression settings; it is **not** the final handoff command because it neither
+selects the agreed frames nor gives them act-prefixed names. Keep the full PNG exports and raw tracks intact
+until the integration step applies one shared kept-frame list to all of them.
 **Always downscale in this step** — the AE comps are 1920×1080 / 1080×1920 for compositing quality, but the
 web must never receive frames that large (browser memory, not just bandwidth — design doc §7 has the math).
-Target **~80–100 scrubbed frames per set total, allocated per act** (design doc §5b): sparse on the approach
-(~15), dense on the slow-mo spin (~40–50), short on the strike (~10), ~15–20 on ball-at-camera. Thin by
-deleting PNGs before transcoding; name frames with act prefixes (`a1_001…`, `a2_001…`) so the site can load
-acts progressively.
+The current scaffold contract is **96 scrubbed frames per set**: A1 12, A2 40, A2b 5, A3 24, A4 15. Final
+web dimensions are 1280×720 landscape and 720×1280 portrait. Names are exactly `a1_001.webp…`,
+`a2_001.webp…`, `a2b_001.webp…`, `a3_001.webp…`, and `a4_001.webp…` inside
+`public/frames/{landscape,portrait}/`. Do **not** thin by casually deleting PNGs: the ball tracks must be
+sampled and reindexed from the same kept-frame list. If the real edit needs different counts, change the
+web manifest first rather than silently handing it a different sequence.
+
+The current coded strike bloom is a placeholder timing value. During integration, set the runtime strike
+progress from the retained frame containing the actual boot–ball contact; do not retime the AE impact to an
+old `0.85` or current placeholder percentage.
 
 **The celebration (act 5) is a video, not frames:** trim the mobbing/hug to 2–3s, grade it like everything
-else, export H.264 (or WebM), heavily compressed (~0.5–1 MB), muted, no roto. It autoplays as a low-opacity
+else, export H.264 MP4 as `celebration.mp4`, heavily compressed (~0.5–1 MB), muted, no roto. It autoplays as a low-opacity
 loop behind the title card.
 
 ### The poster frame
@@ -410,19 +535,25 @@ Rotoscoping is legitimately the hardest part of this whole project. If it's eati
 
 ## 14. Checklist before you hand me the frames
 
-- [ ] Clip trimmed to the ~4–6s move.
-- [ ] Subjects rotoscoped, matte **frozen**, edges refined (slight feather + negative shift edge).
+- [ ] Acts 1–4 handoff trimmed; roto range limited to acts 1–3.
+- [ ] Mandatory first proof completed: ~10 frames of the act-2 spin, graded and tested on `#070B09`.
+- [ ] Acts 1–3 subjects rotoscoped, matte **frozen**, edges refined (slight feather + negative shift edge).
 - [ ] Graded: blacks crushed toward `#070B09`, cool/green tint, global desaturation ~70–80%.
-- [ ] Volt effects built: ball trail + floor glow + rim light + strike flash, all `#5CFFC0`, restrained.
+- [ ] AE-owned volt effects built: floor glow + rim light + strike flash, all `#5CFFC0`, restrained.
+- [ ] No baked ball trail and no jersey-number label in any exported frame.
 - [ ] Work pre-composed into `JACOB_COMPOSITE`.
-- [ ] Two comps: landscape (1920×1080) + portrait (1080×1920 or 1080×1350), subjects re-placed in each.
+- [ ] Two comps: landscape (1920×1080) + portrait (1080×1920), subjects re-placed in each.
+- [ ] Ball tracked in both final export comps; two raw normalized JSON tracks exported and verified at the foot-contact frame.
+- [ ] Act-4 net extracted separately for foreground compositing.
 - [ ] Exported **PNG Sequence, RGB + Alpha, Straight**, one folder per aspect.
-- [ ] Transcoded to alpha WebP, each set **under ~5 MB**, ~90–120 frames.
-- [ ] One poster JPG of the strike on a dark bg.
+- [ ] Frames and tracks thinned/reindexed together to the agreed manifest; each WebP set under 5 MB.
+- [ ] `poster.jpg` plus a separate 1200×630 `og-image.jpg` exported from the strike.
+- [ ] `celebration.mp4` exported as a muted, graded 2–3s H.264 loop under ~1 MB.
 - [ ] Alpha sanity-checked on light and dark backgrounds.
 
-Hand me `frames_landscape/`, `frames_portrait/`, and `poster.jpg`, plus Jacob's real vitals, and I'll build
-the `CodedBackground` + `ScrubStage` against them.
+Hand off both full PNG exports, both raw ball-track JSON files, the net extraction, `celebration.mp4`,
+`poster.jpg`, and `og-image.jpg`. The scaffold already exists; the integration step replaces its generated
+stand-ins, thins/reindexes frames and tracks together, and tunes staging against the real shot.
 
 ---
 

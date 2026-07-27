@@ -80,12 +80,15 @@ source. Your act markers from Premiere are the map. The strategy overlay on top 
       spin, apply the full grade + volt rim, drop on a `#070B09` solid, and LOOK at it. This proves the
       look works before you invest the hours. Screenshot it — send it to me if you want a check.
 - [ ] **Milestone 1 — Act 2 (the spin) complete first.** Roto'd, frozen, edges refined, graded, exported
-      as an alpha PNG sequence, transcoded to WebP, dropped into the harness's `public/frames/`.
+      as an alpha PNG sequence, thinned to the scaffold's 40 A2 frames, transcoded to WebP, and used to
+      replace only `a2_001.webp…a2_040.webp` in both aspect folders. Keep every other generated placeholder;
+      this milestone judges alpha, grade, placement, and scrub feel—not final trail alignment.
       **This is the moment you see him rotate under your thumb.** Do this before anything else — it
       validates the entire pipeline end to end and fuels the rest of the grind.
 - [ ] **Then acts 1 and 3** (approach, strike) — same pipeline, now routine.
 - [ ] **Act 4:** framed footage to mid-flight (no roto of the flying ball), + extract the **net** once.
-- [ ] **Ball track → JSON** (guide has it): one tracker pass across acts 2–4 → `ball-path.json`.
+- [ ] **Ball track → JSON** (guide §9a): one verified pass in each final aspect comp → two raw track JSONs;
+      the web handoff thins/reindexes them with the frames into `ball-path.json`.
 - [ ] **Both aspect exports** (landscape + portrait re-staging), **poster.jpg + og-image.jpg**.
 - [ ] Hand everything to the harness per the AGENTS.md asset manifest.
 
