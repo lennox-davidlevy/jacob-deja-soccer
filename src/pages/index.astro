@@ -1,6 +1,18 @@
 ---
 import Base from "../layout/Base.astro";
+import About from "../components/About.astro";
+import Contact from "../components/Contact.astro";
+import Film from "../components/Film.astro";
+import Hero from "../components/Hero.astro";
+import NavDots from "../components/NavDots.astro";
+import Schedule from "../components/Schedule.astro";
 import ScrubStage from "../components/ScrubStage";
+import Vitals from "../components/Vitals.astro";
+import { loadSiteContent } from "../lib/content";
+
+const content = await loadSiteContent();
+const filmLink = content.links.find(({ label }) => /film|reel|highlight/i.test(label));
+const contactLinks = content.links.filter((link) => link !== filmLink);
 ---
 
 <Base
@@ -8,12 +20,13 @@ import ScrubStage from "../components/ScrubStage";
   description="Jacob Deja · CAM/CDM · Class of 2027."
 >
   <main>
-    <header class="identity-placeholder">
-      <p class="eyebrow">CAM / CDM · CLASS OF 2027</p>
-      <h1 class="hero-title"><span>Jacob</span><span>Deja</span></h1>
-      <p class="hero-subtitle">The Island FC West · MLS Next</p>
-      <p class="identity-note">Scroll into the move</p>
-    </header>
+    <Hero />
+    <NavDots />
     <ScrubStage client:idle />
+    <Vitals bio={content.bio} />
+    <Film film={filmLink} />
+    <Schedule fixtures={content.schedule} />
+    <About about={content.bio.about} />
+    <Contact links={contactLinks} />
   </main>
 </Base>

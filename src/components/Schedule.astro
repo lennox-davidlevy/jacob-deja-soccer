@@ -1,0 +1,38 @@
+---
+import type { ScheduleItem } from "../lib/content";
+
+interface Props {
+  fixtures?: ScheduleItem[];
+}
+
+const { fixtures = [] } = Astro.props;
+const dateFormat = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+---
+
+<section class="section content-section schedule" id="schedule" aria-labelledby="schedule-title">
+  <div class="section-heading">
+    <p class="eyebrow">See him play</p>
+    <h2 id="schedule-title">Upcoming schedule</h2>
+  </div>
+  {fixtures.length > 0 ? (
+    <ol class="schedule-list">
+      {fixtures.map((fixture) => (
+        <li>
+          <time datetime={fixture.date}>{dateFormat.format(new Date(`${fixture.date}T00:00:00Z`))}</time>
+          <div>
+            <h3>{fixture.event}</h3>
+            <p>{fixture.location}</p>
+            {(fixture.kit || fixture.notes) && <small>{[fixture.kit && `Kit: ${fixture.kit}`, fixture.notes].filter(Boolean).join(" · ")}</small>}
+          </div>
+        </li>
+      ))}
+    </ol>
+  ) : (
+    <p class="empty-state">Upcoming fixtures are [TBD]. Please check back for live viewing opportunities.</p>
+  )}
+</section>

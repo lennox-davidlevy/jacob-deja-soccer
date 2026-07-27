@@ -1,0 +1,24 @@
+---
+import type { ContentLink } from "../lib/content";
+
+interface Props {
+  links?: ContentLink[];
+}
+
+const { links = [] } = Astro.props;
+---
+
+<section class="section content-section contact" id="contact" aria-labelledby="contact-title">
+  <div class="section-heading">
+    <p class="eyebrow">Recruiting contact</p>
+    <h2 id="contact-title">Get in touch</h2>
+  </div>
+  <p class="contact-email"><a href="mailto:jacob@jacobdeja.com?subject=Recruiting%20%E2%80%94%20Jacob%20Deja%20(CAM%2FCDM%2C%202027)">jacob@jacobdeja.com</a></p>
+  <p class="contact-note">Club coach reference available on request.</p>
+  <p class="contact-download"><a class="text-link" href="/jacob-onepager.pdf" download>Download one-pager (PDF) <span aria-hidden="true">↓</span></a></p>
+  {links.length > 0 && (
+    <ul class="contact-links" aria-label="Jacob's links">
+      {links.map((link) => <li><a class="text-link" href={link.url} target="_blank" rel="noreferrer">{link.label} <span aria-hidden="true">↗</span></a></li>)}
+    </ul>
+  )}
+</section>

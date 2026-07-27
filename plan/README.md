@@ -75,7 +75,7 @@ Deploy an empty dark page to a Vercel preview URL to prove the pipeline. Don't c
 The long pole — start early, runs parallel to A1–A3. Trim → rotoscope Jacob/ball/defender/net to transparent
 → grade into palette → build volt effects (ball trail, floor glow, rim light, strike flash) → frame for
 landscape + portrait → export two alpha sequences + a poster frame → transcode to alpha WebP (<5MB/set).
-Label the jersey as **#10**.
+Do not add a jersey-number overlay to the footage; the unconfirmed motif stays swappable in website UI.
 
 **A3 · Coded background** ☑ *(completed 2026-07-27)* — *DESIGN-SYSTEM §7, ARCHITECTURE §4*
 CSS floodlight radial + turf gradient + grain + volt strike-bloom. Build before the scrub so there's a world
@@ -90,21 +90,21 @@ if this isn't smooth, nothing else matters.
 `gsap.matchMedia()`: portrait set on phones, landscape on laptops. Reduced-motion → static poster. Test on a
 **real iPhone** (momentum scroll, address-bar resize) — where scroll bugs live.
 
-**A6 · Static sections** ☐ — *DESIGN-SYSTEM §5, ARCHITECTURE §3*
-Hero (JACOB DEJA, #10, eyebrow, **"Skip to film" quick link**), Vitals box-score with scroll-in count-up,
+**A6 · Static sections** ◐ *(structure implemented 2026-07-27; final content/motion pending)* — *DESIGN-SYSTEM §5, ARCHITECTURE §3*
+Hero (JACOB DEJA, swappable number motif, eyebrow, **"Skip to film" quick link**), Vitals box-score with scroll-in count-up,
 Film (lazy embed), **See him play** (upcoming schedule — coaches recruit by watching live), About (+ one
 strong portrait photo), Contact, NavDots. Wire the strike → vitals release.
 
-**A6b · Content pipeline (the "admin portal")** ☐ — *ARCHITECTURE §7b*
+**A6b · Content pipeline (the "admin portal")** ◐ *(defensive build-time reader implemented; Sheet + hook pending)* — *ARCHITECTURE §7b*
 Google Sheet (schedule/bio/links tabs) → published-CSV → build-time fetch in `content.ts` → "Publish site"
 Apps Script button firing a Vercel deploy hook. Half a day; schedule/bio/links sections render from the
 sheet, past dates auto-drop, Jacob updates everything from his phone forever.
 
-**A7 · Contact / one-pager / share** ☐ — *ARCHITECTURE §6*
+**A7 · Contact / one-pager / share** ◐ *(static contact, PDF, metadata implemented; phone/final OG verification pending)* — *ARCHITECTURE §6*
 `mailto:jacob@jacobdeja.com` + phone, downloadable PDF one-pager (build this — coaches file sheets), Open
 Graph tags (OG image = the poster frame), optional Web Share button.
 
-**A8 · Performance + accessibility pass** ☐ — *ARCHITECTURE §5*
+**A8 · Performance + accessibility pass** ◐ *(automated structural checks clean; Lighthouse/device pass pending)* — *ARCHITECTURE §5*
 Lighthouse mobile 90+ perf / 100 a11y, contrast, keyboard focus, reduced motion. Hit the frame/LCP budget.
 
 **A9 · Ship** ☐ — *ARCHITECTURE §8*
@@ -221,5 +221,27 @@ A2 real footage remains untouched and can replace the stand-ins under the same c
 
 ---
 
-*Living index. Domain owned, stack locked, footage + data in hand. Next actions: confirm the jersey number,
-then A1 (scaffold) + A2 (AE, five-act version) in parallel. Design iterations continue against the brief.*
+*Living index. Domain owned, stack locked, placeholder site built. Next actions: confirm the jersey number,
+produce the A2 ten-frame proof, connect the content Sheet, and verify the scrub on a real iPhone.*
+
+---
+
+## A6 implementation — 2026-07-27
+
+Added static Astro sections for identity, vitals, film placeholder, upcoming schedule, about, contact, and
+nav dots. The confirmed facts render in the box score; the jersey motif is a single `#[TBD]` constant until
+confirmed. The scrub remains the sole `client:idle` hydrated island. Final reel embedding, approved bio,
+schedule data, phone, count-up/release tuning, and public reference details remain pending.
+
+---
+
+## A6b–A8 static work — 2026-07-27
+
+Added a failure-tolerant build-time CSV reader for the future Google Sheet: bad rows and failed tab fetches
+fall back safely, past fixtures drop automatically, and no runtime data dependency was introduced. Added
+the real portrait derivative, visible mail contact with a prefilled subject, generated one-page recruiting
+PDF, canonical/Open Graph/Twitter metadata, and favicon. The current alpha-frame sets remain ~1.8 MB each,
+OG/poster dimensions are correct, all ordinary text-token contrast checks pass WCAG AA, only the scrub
+hydrates, and `astro check`/the static build are clean. Remaining: create and publish the actual Sheet tabs,
+wire its deploy hook, add the reel/phone/approved copy, replace the placeholder OG media, run Lighthouse,
+and verify on real iPhone Safari.

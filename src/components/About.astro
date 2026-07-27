@@ -1,0 +1,25 @@
+---
+import { Image } from "astro:assets";
+import portrait from "../assets/jacob-portrait.webp";
+
+interface Props {
+  about?: string;
+}
+
+const { about } = Astro.props;
+---
+
+<section class="section content-section about" id="about" aria-labelledby="about-title">
+  <div class="about-layout">
+    <div>
+      <div class="section-heading">
+        <p class="eyebrow">Player profile</p>
+        <h2 id="about-title">About</h2>
+      </div>
+      <p class:list={["about-copy", !about && "empty-state"]}>{about || "Approved player bio is [TBD]."}</p>
+    </div>
+    <figure class="about-portrait">
+      <Image src={portrait} width={720} height={900} loading="lazy" alt="Jacob Deja in his white Maestro training kit" />
+    </figure>
+  </div>
+</section>

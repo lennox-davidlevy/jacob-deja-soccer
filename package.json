@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "assets:placeholders": "bun run scripts/generate-placeholders.ts",
+    "assets:portrait": "magick media/pic_1.jpeg -gravity center -crop 4:5 -resize 720x900 -strip -modulate 90,72,100 -level 6%,94% -fill '#0A2019' -colorize 8% -attenuate 0.04 +noise Gaussian -quality 82 src/assets/jacob-portrait.webp && magick src/assets/jacob-portrait.webp -quality 84 public/jacob-portrait.jpg",
+    "assets:onepager": "bun run scripts/generate-onepager.ts",
     "dev": "astro dev",
     "build": "astro build",
     "check": "astro check"

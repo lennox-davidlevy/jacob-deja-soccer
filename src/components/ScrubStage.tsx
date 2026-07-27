@@ -404,6 +404,7 @@ export default function ScrubStage({ scrollLength = "550svh" }: ScrubStageProps)
 
   return (
     <section
+      id="scrub"
       className="scrub-shell"
       ref={root}
       aria-hidden="true"

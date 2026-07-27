@@ -1,0 +1,31 @@
+---
+interface Props {
+  bio?: Record<string, string>;
+}
+
+const { bio = {} } = Astro.props;
+const vitals = [
+  ["Class", bio.class ?? bio.grad_year ?? "2027"],
+  ["Position", bio.position ?? "CAM / CDM"],
+  ["Foot", bio.foot ?? bio.dominant_foot ?? "Right"],
+  ["Height", bio.height ?? "5'10\""],
+  ["Club", bio.club ?? "The Island FC West", bio.club_level ?? "MLS Next HG"],
+  ["High school", bio.high_school ?? "Comsewogue High School"],
+  ["GPA", bio.gpa ?? "4.0"],
+];
+---
+
+<section class="section content-section vitals" id="vitals" aria-labelledby="vitals-title">
+  <div class="section-heading">
+    <p class="eyebrow">Box score</p>
+    <h2 id="vitals-title">Vitals</h2>
+  </div>
+  <dl class="vitals-grid">
+    {vitals.map(([label, value, detail]) => (
+      <div class:list={["vital", label === "GPA" && "vital--featured"]}>
+        <dt>{label}</dt>
+        <dd>{value}{detail && <small>{detail}</small>}</dd>
+      </div>
+    ))}
+  </dl>
+</section>

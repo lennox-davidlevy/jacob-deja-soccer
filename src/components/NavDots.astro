@@ -1,0 +1,17 @@
+---
+const sections = [
+  ["top", "Identity"],
+  ["scrub", "The move"],
+  ["vitals", "Vitals"],
+  ["film", "Full film"],
+  ["schedule", "Upcoming schedule"],
+  ["about", "About"],
+  ["contact", "Contact"],
+];
+---
+
+<nav class="nav-dots" aria-label="Page sections">
+  <ul>
+    {sections.map(([id, label]) => <li><a href={`#${id}`} aria-label={label}><span aria-hidden="true" /></a></li>)}
+  </ul>
+</nav>

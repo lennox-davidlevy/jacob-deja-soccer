@@ -1,0 +1,28 @@
+---
+import { JERSEY_MOTIF } from "../lib/player";
+import type { ContentLink } from "../lib/content";
+
+interface Props {
+  film?: ContentLink;
+}
+
+const { film } = Astro.props;
+---
+
+<section class="section content-section film" id="film" aria-labelledby="film-title" tabindex="-1">
+  <div class="section-heading">
+    <p class="eyebrow">Game-speed</p>
+    <h2 id="film-title">Full film</h2>
+  </div>
+  <div class="film-placeholder" id="film-status" tabindex="-1">
+    <p>{JERSEY_MOTIF} · White / black / blue kits</p>
+    {film ? (
+      <>
+        <p class="film-status">Jacob's full game-speed reel.</p>
+        <a class="text-link" href={film.url} target="_blank" rel="noreferrer">Watch {film.label} <span aria-hidden="true">↗</span></a>
+      </>
+    ) : (
+      <p class="film-status" role="status">Highlight reel and host are <strong>[TBD]</strong>. Film coming soon.</p>
+    )}
+  </div>
+</section>
