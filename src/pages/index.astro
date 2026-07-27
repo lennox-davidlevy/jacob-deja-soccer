@@ -13,6 +13,7 @@ import { loadSiteContent } from "../lib/content";
 const content = await loadSiteContent();
 const filmLink = content.links.find(({ label }) => /film|reel|highlight/i.test(label));
 const contactLinks = content.links.filter((link) => link !== filmLink);
+const about = content.bio?.find(({ key }) => key === "about")?.value;
 ---
 
 <Base
@@ -26,7 +27,7 @@ const contactLinks = content.links.filter((link) => link !== filmLink);
     <Vitals bio={content.bio} />
     <Film film={filmLink} />
     <Schedule fixtures={content.schedule} />
-    <About about={content.bio.about} />
+    <About about={about} />
     <Contact links={contactLinks} />
   </main>
 </Base>

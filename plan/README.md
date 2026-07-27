@@ -95,7 +95,7 @@ Hero (JACOB DEJA, swappable number motif, eyebrow, **"Skip to film" quick link**
 Film (lazy embed), **See him play** (upcoming schedule — coaches recruit by watching live), About (+ one
 strong portrait photo), Contact, NavDots. Wire the strike → vitals release.
 
-**A6b · Content pipeline (the "admin portal")** ◐ *(defensive build-time reader implemented; Sheet + hook pending)* — *ARCHITECTURE §7b*
+**A6b · Content pipeline (the "admin portal")** ◐ *(live Sheet wired; test-row cleanup + publish hook pending)* — *ARCHITECTURE §7b*
 Google Sheet (schedule/bio/links tabs) → published-CSV → build-time fetch in `content.ts` → "Publish site"
 Apps Script button firing a Vercel deploy hook. Half a day; schedule/bio/links sections render from the
 sheet, past dates auto-drop, Jacob updates everything from his phone forever.
@@ -222,7 +222,8 @@ A2 real footage remains untouched and can replace the stand-ins under the same c
 ---
 
 *Living index. Domain owned, stack locked, placeholder site built. Next actions: confirm the jersey number,
-produce the A2 ten-frame proof, connect the content Sheet, and verify the scrub on a real iPhone.*
+produce the A2 ten-frame proof, remove the Sheet's temporary test rows, wire its deploy hook, and verify the
+scrub on a real iPhone.*
 
 ---
 
@@ -237,11 +238,13 @@ schedule data, phone, count-up/release tuning, and public reference details rema
 
 ## A6b–A8 static work — 2026-07-27
 
-Added a failure-tolerant build-time CSV reader for the future Google Sheet: bad rows and failed tab fetches
-fall back safely, past fixtures drop automatically, and no runtime data dependency was introduced. Added
+Added a failure-tolerant build-time CSV reader for the published Google Sheet: bad rows and failed tab fetches
+fall back safely, past fixtures drop automatically, bio vitals preserve Sheet row order and accept new rows,
+and no runtime data dependency was introduced. The three live CSV tabs are wired and verified with temporary
+`[TEST]` schedule/link rows; those rows must be removed after visual verification. Added
 the real portrait derivative, visible mail contact with a prefilled subject, generated one-page recruiting
 PDF, canonical/Open Graph/Twitter metadata, and favicon. The current alpha-frame sets remain ~1.8 MB each,
 OG/poster dimensions are correct, all ordinary text-token contrast checks pass WCAG AA, only the scrub
-hydrates, and `astro check`/the static build are clean. Remaining: create and publish the actual Sheet tabs,
-wire its deploy hook, add the reel/phone/approved copy, replace the placeholder OG media, run Lighthouse,
+hydrates, and `astro check`/the static build are clean. Remaining: wire the Sheet's deploy hook, add the
+reel/phone/approved copy, replace the placeholder OG media, run Lighthouse,
 and verify on real iPhone Safari.

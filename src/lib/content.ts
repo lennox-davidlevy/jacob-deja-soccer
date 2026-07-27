@@ -11,19 +11,25 @@ export interface ContentLink {
   url: string;
 }
 
+export interface BioItem {
+  key: string;
+  label: string;
+  value: string;
+  detail?: string;
+}
+
 export interface SiteContent {
   schedule: ScheduleItem[];
-  bio: Record<string, string>;
+  bio: BioItem[] | null;
   links: ContentLink[];
 }
 
 type ContentTab = keyof typeof SHEET_CSV_URLS;
 
-// [TBD] Replace these with each tab's public "Publish to web" CSV URL.
 const SHEET_CSV_URLS = {
-  schedule: "",
-  bio: "",
-  links: "",
+  schedule: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQll-_z-2-UPk9rYSMvMGcle0nyFDyiT-5w9-LRCUu3o-6CoRmLtQ1gNmSP0D1pDV8bx3TWjjUf67Rh/pub?gid=1122464326&single=true&output=csv",
+  bio: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQll-_z-2-UPk9rYSMvMGcle0nyFDyiT-5w9-LRCUu3o-6CoRmLtQ1gNmSP0D1pDV8bx3TWjjUf67Rh/pub?gid=0&single=true&output=csv",
+  links: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQll-_z-2-UPk9rYSMvMGcle0nyFDyiT-5w9-LRCUu3o-6CoRmLtQ1gNmSP0D1pDV8bx3TWjjUf67Rh/pub?gid=68748327&single=true&output=csv",
 } as const;
 
 function parseCsv(csv: string): string[][] {
@@ -88,17 +94,20 @@ function parseSchedule(csv: string, today: string): ScheduleItem[] {
     .sort((left, right) => left.date.localeCompare(right.date));
 }
 
-function parseBio(csv: string): Record<string, string> {
-  return Object.fromEntries(
-    recordsFrom(csv)
-      .filter(({ key, value }) => Boolean(key && value))
-      .map(({ key, value }) => [key.toLowerCase().replace(/[\s-]+/g, "_"), value]),
-  );
+function parseBio(csv: string): BioItem[] {
+  const knownLabels: Record<string, string> = { gpa: "GPA" };
+  return recordsFrom(csv).flatMap(({ key, value }) => {
+    if (!key || !value) return [];
+    const normalizedKey = key.toLowerCase().replace(/[\s-]+/g, "_");
+    const label = knownLabels[normalizedKey]
+      ?? key.replace(/[_-]+/g, " ").replace(/^./, (character) => character.toUpperCase());
+    return [{ key: normalizedKey, label, value }];
+  });
 }
 
 function parseLinks(csv: string): ContentLink[] {
   return recordsFrom(csv).flatMap(({ label, url, show }) => {
-    if (!label || !["yes", "true", "1"].includes(show.toLowerCase())) return [];
+    if (!label || !show || !["yes", "true", "1"].includes(show.toLowerCase())) return [];
 
     try {
       const parsedUrl = new URL(url);
@@ -110,15 +119,15 @@ function parseLinks(csv: string): ContentLink[] {
   });
 }
 
-async function fetchTab(tab: ContentTab): Promise<string> {
+async function fetchTab(tab: ContentTab): Promise<string | null> {
   const url = SHEET_CSV_URLS[tab];
-  if (!url) return "";
+  if (!url) return null;
 
   try {
     const response = await fetch(url);
-    return response.ok ? await response.text() : "";
+    return response.ok ? await response.text() : null;
   } catch {
-    return "";
+    return null;
   }
 }
 
@@ -131,8 +140,8 @@ export async function loadSiteContent(today = new Date()): Promise<SiteContent> 
   const todayKey = today.toISOString().slice(0, 10);
 
   return {
-    schedule: parseSchedule(scheduleCsv, todayKey),
-    bio: parseBio(bioCsv),
-    links: parseLinks(linksCsv),
+    schedule: scheduleCsv === null ? [] : parseSchedule(scheduleCsv, todayKey),
+    bio: bioCsv === null ? null : parseBio(bioCsv),
+    links: linksCsv === null ? [] : parseLinks(linksCsv),
   };
 }
