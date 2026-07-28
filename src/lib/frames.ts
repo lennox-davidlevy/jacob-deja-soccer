@@ -30,13 +30,8 @@ export const CHOREOGRAPHY = {
   laterActsLoadAt: 0.02,
   strikeAt: 0.65,
   strikeWidth: 0.055,
-  matchCutStart: 0.76,
-  matchCutEnd: 0.84,
-  matchCutFadeEnd: 0.88,
-  titleStart: 0.8,
-  titleEnd: 0.86,
-  videoEnd: 0.88,
-  videoStart: 0.78,
+  trailFadeStart: 0.76,
+  videoStart: 0.8,
   transitionWidth: 0.009,
 } as const;
 

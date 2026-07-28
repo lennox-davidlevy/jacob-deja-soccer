@@ -1,4 +1,4 @@
-import { ACT_BOUNDARIES, SCRUB_FRAME_COUNT } from "../src/lib/frames";
+import { ACT_BOUNDARIES, SCRUB_FRAME_COUNT, type Aspect } from "../src/lib/frames";
 
 // Requires ImageMagick 7 (`magick`). Run with `bun run assets:placeholders`.
 const magick = Bun.which("magick");
@@ -11,7 +11,7 @@ interface BallPoint {
 }
 
 interface BallPath {
-  points: BallPoint[];
+  paths: Record<Aspect, { points: BallPoint[] }>;
 }
 
 const palette = {
@@ -23,12 +23,13 @@ const palette = {
 
 const path = await Bun.file("public/ball-path.json").json() as BallPath;
 
-function ballAt(frame: number): BallPoint {
-  const nextIndex = path.points.findIndex((point) => point.frame >= frame);
-  if (nextIndex === -1) return path.points.at(-1)!;
-  if (nextIndex === 0) return path.points[0];
-  const before = path.points[nextIndex - 1];
-  const after = path.points[nextIndex];
+function ballAt(aspect: Aspect, frame: number): BallPoint {
+  const points = path.paths[aspect].points;
+  const nextIndex = points.findIndex((point) => point.frame >= frame);
+  if (nextIndex === -1) return points.at(-1)!;
+  if (nextIndex === 0) return points[0];
+  const before = points[nextIndex - 1];
+  const after = points[nextIndex];
   const progress = (frame - before.frame) / (after.frame - before.frame);
   return {
     frame,
@@ -58,12 +59,12 @@ function net(width: number, height: number): string {
   return `<g opacity="0.13" stroke="${palette.turf}" stroke-width="1.5">${lines.join("")}</g>`;
 }
 
-function svgFor(frame: number, width: number, height: number): string {
+function svgFor(aspect: Aspect, frame: number, width: number, height: number): string {
   const act = ACT_BOUNDARIES.find((candidate) => frame <= candidate.frameEnd)!;
   const local = (frame - act.frameStart) / Math.max(1, act.frameEnd - act.frameStart);
   const unit = Math.min(width, height);
   const ground = height * 0.78;
-  const ball = ballAt(frame);
+  const ball = ballAt(aspect, frame);
   let jacobX = width * 0.22;
   let jacobScale = unit * 0.52;
   let rotation = -5;
@@ -119,7 +120,7 @@ function frameName(frame: number): string {
 
 for (const [aspect, width, height] of [["landscape", 1280, 720], ["portrait", 720, 1280]] as const) {
   for (let frame = 0; frame < SCRUB_FRAME_COUNT; frame += 1) {
-    const svg = svgFor(frame, width, height);
+    const svg = svgFor(aspect, frame, width, height);
     const result = Bun.spawnSync([
       magick,
       "-background",

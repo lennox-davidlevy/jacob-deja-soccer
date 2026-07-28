@@ -2,6 +2,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, type CSSProperties } from "react";
+import { ACT_FIVE_PHASES, actFiveState } from "../lib/actFive";
 import {
   ACT_BOUNDARIES,
   ACT_FIVE_START,
@@ -11,12 +12,41 @@ import {
   PORTRAIT_SET,
   SCRUB_ASSETS,
   frameIndexForProgress,
+  type Aspect,
   type FrameSet,
 } from "../lib/frames";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 interface BallPoint { frame: number; x: number; y: number }
+
+function readBallPoints(value: unknown, frameCount: number): BallPoint[] {
+  const points = Array.isArray(value)
+    ? value
+    : value && typeof value === "object" && "points" in value && Array.isArray(value.points)
+      ? value.points
+      : [];
+
+  return points.filter((point): point is BallPoint =>
+    typeof point === "object" && point !== null &&
+    Number.isInteger((point as BallPoint).frame) && (point as BallPoint).frame >= 0 && (point as BallPoint).frame < frameCount &&
+    Number.isFinite((point as BallPoint).x) && (point as BallPoint).x >= 0 && (point as BallPoint).x <= 1 &&
+    Number.isFinite((point as BallPoint).y) && (point as BallPoint).y >= 0 && (point as BallPoint).y <= 1,
+  ).sort((left, right) => left.frame - right.frame);
+}
+
+function ballPointsForAspect(data: unknown, aspect: Aspect, frameCount: number): BallPoint[] {
+  if (!data || typeof data !== "object") return [];
+  if (!("coordinateSpace" in data) || data.coordinateSpace !== "normalized") return [];
+  if ("version" in data && data.version === 2) {
+    if (!("paths" in data) || !data.paths || typeof data.paths !== "object" || !(aspect in data.paths)) return [];
+    return readBallPoints((data.paths as Record<string, unknown>)[aspect], frameCount);
+  }
+  if (!("version" in data) || data.version === 1) {
+    return "points" in data ? readBallPoints(data.points, frameCount) : [];
+  }
+  return [];
+}
 
 interface ScrubStageProps {
   scrollLength?: string;
@@ -36,12 +66,15 @@ export default function ScrubStage({ scrollLength = "550svh" }: ScrubStageProps)
   const stage = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const status = useRef<HTMLParagraphElement>(null);
+  const title = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const rootElement = root.current;
     const canvasElement = canvas.current;
     const stageElement = stage.current;
-    if (!rootElement || !canvasElement || !stageElement) return;
+    const titleElement = title.current;
+    if (!rootElement || !canvasElement || !stageElement || !titleElement) return;
+    const vitalsElement = document.getElementById("vitals");
 
     const context = canvasElement.getContext("2d");
     if (!context) return;
@@ -68,31 +101,49 @@ export default function ScrubStage({ scrollLength = "550svh" }: ScrubStageProps)
     let resizeObserver: ResizeObserver | undefined;
     let idleId: number | undefined;
     let loadVersion = 0;
+    let warnedMissingPath = false;
 
     const loadPath = () => {
+      if (!set) return;
+      const version = loadVersion;
+      const aspect = set.aspect;
+      const frameCount = set.frameCount;
       pathController = new AbortController();
       fetch(SCRUB_ASSETS.ballPath, { signal: pathController.signal })
         .then((response) => response.ok ? response.json() as Promise<unknown> : Promise.reject())
         .then((data) => {
-          if (!active || !data || typeof data !== "object" || !("points" in data) || !Array.isArray(data.points)) return;
-          path = data.points.filter((point): point is BallPoint =>
-            typeof point === "object" && point !== null &&
-            typeof (point as BallPoint).frame === "number" &&
-            typeof (point as BallPoint).x === "number" &&
-            typeof (point as BallPoint).y === "number",
-          );
+          if (!active || version !== loadVersion) return;
+          path = ballPointsForAspect(data, aspect, frameCount);
+          if (path.length === 0 && !warnedMissingPath) {
+            warnedMissingPath = true;
+            console.warn(`Ball path missing for ${aspect}; using the viewport center.`);
+          }
           paintedEffect = "";
           queuePaint();
-        }).catch(() => undefined);
+        }).catch((error: unknown) => {
+          if (!active || version !== loadVersion || error instanceof DOMException && error.name === "AbortError") return;
+          if (!warnedMissingPath) {
+            warnedMissingPath = true;
+            console.warn("Ball path could not be loaded; using the viewport center.");
+          }
+        });
     };
 
-    const updateBackground = (p: number) => {
+    const applyVisualState = (p: number, actFive: ReturnType<typeof actFiveState>) => {
       stageElement.style.setProperty("--approach-darkness", String(0.38 * clamp(p / 0.6)));
       stageElement.style.setProperty("--strike-bloom", String(bell(p, CHOREOGRAPHY.strikeAt, CHOREOGRAPHY.strikeWidth)));
-      stageElement.style.setProperty("--title-opacity", String(range(p, CHOREOGRAPHY.titleStart, CHOREOGRAPHY.titleEnd)));
-      stageElement.style.setProperty("--video-opacity", String(range(p, ACT_FIVE_START, CHOREOGRAPHY.videoEnd) * 0.52));
+      stageElement.style.setProperty("--title-opacity", actFive.active ? "1" : "0");
+      stageElement.style.setProperty("--video-opacity", String(actFive.videoOpacity));
+      titleElement.style.setProperty("--name-fill", actFive.nameUsesVoid ? "var(--bg-void)" : "var(--text-hi)");
+      titleElement.style.setProperty("--subtitle-opacity", String(actFive.subtitleOpacity));
+      vitalsElement?.style.setProperty("--vitals-release", String(actFive.releaseProgress));
       const transitionFade = Math.max(...ACT_TRANSITIONS.map((point) => bell(p, point, CHOREOGRAPHY.transitionWidth)), 0);
       stageElement.style.setProperty("--canvas-opacity", String(1 - transitionFade));
+      if (video.current) {
+        if (p >= CHOREOGRAPHY.videoStart) void video.current.play().catch(() => undefined);
+        else video.current.pause();
+      }
+      if (status.current) status.current.textContent = `${actFor(p)} · ${Math.round(p * 100)}%`;
     };
 
     const actFor = (p: number) => p >= ACT_FIVE_START ? "Together" : ACT_BOUNDARIES.find((act) => p < act.end)?.label ?? "The ball";
@@ -196,16 +247,27 @@ export default function ScrubStage({ scrollLength = "550svh" }: ScrubStageProps)
       if (!active || !set) return;
       fit();
       const p = currentProgress;
-      const cut = range(p, CHOREOGRAPHY.matchCutStart, CHOREOGRAPHY.matchCutEnd);
-      const cutFade = range(p, CHOREOGRAPHY.matchCutEnd, CHOREOGRAPHY.matchCutFadeEnd);
-      const cutStep = cut > 0 && cut < 1 ? cut : cut === 1 && cutFade < 1 ? 1 + cutFade : 0;
-      const effectKey = `${Math.round(cutStep * 120)}:${canvasElement.width}x${canvasElement.height}`;
+      const actFive = actFiveState(p);
+      const trailAlpha = (0.18 + 0.42 * clamp((p - 0.1) / 0.55)) *
+        (1 - range(p, CHOREOGRAPHY.trailFadeStart, ACT_FIVE_START));
+      const canvasPhase = !actFive.active ? `frames:${trailAlpha}`
+        : actFive.q < ACT_FIVE_PHASES.expandEnd ? `expand:${actFive.circleProgress}`
+        : actFive.q < ACT_FIVE_PHASES.holdEnd ? "hold"
+        : actFive.q < ACT_FIVE_PHASES.dissolveEnd ? `dissolve:${actFive.fieldAlpha}:${actFive.easedDotProgress}`
+        : "settled";
+      const effectKey = `${canvasPhase}:${canvasElement.width}x${canvasElement.height}`;
       const sourceFrame = bitmaps.has(requestedFrame)
         ? requestedFrame
         : [...bitmaps.keys()].sort((a, b) => Math.abs(a - requestedFrame) - Math.abs(b - requestedFrame))[0];
       const bitmap = sourceFrame === undefined ? undefined : bitmaps.get(sourceFrame);
-      if (paintedFrame === requestedFrame && paintedSourceFrame === sourceFrame && paintedEffect === effectKey) return;
-      if (!bitmap || sourceFrame === undefined) return;
+      const canvasSourceFrame = actFive.showActFour ? sourceFrame : -1;
+      const canvasDirty = paintedFrame !== requestedFrame || paintedSourceFrame !== canvasSourceFrame || paintedEffect !== effectKey;
+      if (canvasDirty && actFive.showActFour && (!bitmap || sourceFrame === undefined)) return;
+      if (!canvasDirty) {
+        applyVisualState(p, actFive);
+        return;
+      }
+
       context.clearRect(0, 0, canvasElement.width, canvasElement.height);
       const scale = Math.min(canvasElement.width / set.width, canvasElement.height / set.height);
       const width = set.width * scale;
@@ -226,8 +288,7 @@ export default function ScrubStage({ scrollLength = "550svh" }: ScrubStageProps)
       if (visiblePath.length > 1 && p < ACT_FIVE_START) {
         context.save();
         context.strokeStyle = getComputedStyle(stageElement).getPropertyValue("--volt").trim();
-        context.globalAlpha = (0.18 + 0.42 * clamp((p - 0.1) / 0.55)) *
-          (1 - range(p, CHOREOGRAPHY.videoStart, CHOREOGRAPHY.matchCutEnd));
+        context.globalAlpha = trailAlpha;
         context.lineWidth = Math.max(2, Math.min(canvasElement.width, canvasElement.height) * 0.006);
         context.lineCap = "round";
         context.lineJoin = "round";
@@ -244,25 +305,48 @@ export default function ScrubStage({ scrollLength = "550svh" }: ScrubStageProps)
         context.restore();
       }
 
-      context.save();
-      context.globalAlpha = 1 - range(p, CHOREOGRAPHY.videoStart, CHOREOGRAPHY.matchCutEnd);
-      context.drawImage(bitmap, left, top, width, height);
-      context.restore();
-      lastUsed.set(sourceFrame, ++useCounter);
-
-      if (cut > 0) {
-        const lastPoint = path.at(-1) ?? { x: 0.5, y: 0.5 };
-        const radius = Math.hypot(canvasElement.width, canvasElement.height) * cut;
+      if (actFive.showActFour && bitmap && sourceFrame !== undefined) {
         context.save();
-        context.fillStyle = getComputedStyle(stageElement).getPropertyValue("--volt").trim();
-        context.globalAlpha = (0.22 + cut * 0.78) * (1 - cutFade);
+        context.drawImage(bitmap, left, top, width, height);
+        context.restore();
+        lastUsed.set(sourceFrame, ++useCounter);
+      }
+
+      const lastPoint = path.at(-1) ?? { x: 0.5, y: 0.5 };
+      const originX = left + lastPoint.x * width;
+      const originY = top + lastPoint.y * height;
+      const volt = getComputedStyle(stageElement).getPropertyValue("--volt").trim();
+      if (actFive.active && actFive.fieldAlpha > 0) {
+        const fullRadius = Math.max(
+          Math.hypot(originX, originY),
+          Math.hypot(canvasElement.width - originX, originY),
+          Math.hypot(originX, canvasElement.height - originY),
+          Math.hypot(canvasElement.width - originX, canvasElement.height - originY),
+        );
+        context.save();
+        context.fillStyle = volt;
+        context.globalAlpha = actFive.fieldAlpha;
         context.beginPath();
-        context.arc(left + lastPoint.x * width, top + lastPoint.y * height, radius, 0, Math.PI * 2);
+        context.arc(originX, originY, fullRadius * actFive.circleProgress, 0, Math.PI * 2);
         context.fill();
         context.restore();
       }
+
+      if (actFive.active && actFive.q >= ACT_FIVE_PHASES.holdEnd) {
+        const dpr = canvasElement.width / Math.max(1, stageElement.getBoundingClientRect().width);
+        const startRadius = Math.min(canvasElement.width, canvasElement.height) * 0.06;
+        const endRadius = 7 * dpr;
+        const dotRadius = startRadius + (endRadius - startRadius) * actFive.easedDotProgress;
+        context.save();
+        context.fillStyle = volt;
+        context.beginPath();
+        context.arc(originX, originY, dotRadius, 0, Math.PI * 2);
+        context.fill();
+        context.restore();
+      }
+      applyVisualState(p, actFive);
       paintedFrame = requestedFrame;
-      paintedSourceFrame = sourceFrame;
+      paintedSourceFrame = canvasSourceFrame ?? -1;
       paintedEffect = effectKey;
       canvasElement.dataset.paintedFrame = String(sourceFrame);
     };
@@ -291,6 +375,7 @@ export default function ScrubStage({ scrollLength = "550svh" }: ScrubStageProps)
       initialDecoded.clear();
       lastUsed.clear();
       laterActsActivated = false;
+      warnedMissingPath = false;
       delete rootElement.dataset.ready;
       set = null;
       paintedFrame = -1;
@@ -341,7 +426,6 @@ export default function ScrubStage({ scrollLength = "550svh" }: ScrubStageProps)
       activateFrames(0, firstLaterFrame - 1);
       warm(0);
       requestedFrame = 0;
-      updateBackground(0);
       queuePaint();
     };
 
@@ -350,13 +434,7 @@ export default function ScrubStage({ scrollLength = "550svh" }: ScrubStageProps)
       requestedFrame = frameIndexForProgress(currentProgress);
       canvasElement.dataset.requestedFrame = String(requestedFrame);
       if (currentProgress > CHOREOGRAPHY.laterActsLoadAt) activateLaterActs();
-      if (video.current) {
-        if (currentProgress >= CHOREOGRAPHY.videoStart) void video.current.play().catch(() => undefined);
-        else video.current.pause();
-      }
       warm(requestedFrame);
-      updateBackground(currentProgress);
-      if (status.current) status.current.textContent = `${actFor(currentProgress)} · ${Math.round(currentProgress * 100)}%`;
       queuePaint();
     };
 
@@ -388,6 +466,7 @@ export default function ScrubStage({ scrollLength = "550svh" }: ScrubStageProps)
       });
       return () => {
         resizeObserver?.disconnect();
+        vitalsElement?.style.removeProperty("--vitals-release");
         disposeFrameSet();
       };
     });
@@ -417,7 +496,7 @@ export default function ScrubStage({ scrollLength = "550svh" }: ScrubStageProps)
         <img className="scrub-poster" src={SCRUB_ASSETS.poster} alt="" />
         <div className="scrub-loader" aria-hidden="true"><span>Preparing sequence</span></div>
         <div className="scrub-telemetry" aria-hidden="true"><span>GENERATED STAND-IN</span><p ref={status}>Approach · 0%</p></div>
-        <div className="scrub-title-card" aria-hidden="true"><i /><p>JACOB DEJA</p><span>CAM / CDM · CLASS OF 2027</span></div>
+        <div className="scrub-title-card" ref={title} aria-hidden="true"><p>JACOB DEJA</p><span>CAM / CDM · CLASS OF 2027</span></div>
       </div>
     </section>
   );

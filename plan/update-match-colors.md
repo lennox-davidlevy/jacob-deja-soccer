@@ -4,6 +4,9 @@
 > Defines the volt-circle match cut from the ball's last tracked position into the title card.
 > Companion to `DESIGN-SYSTEM-v0.2.md` §5b, §5c, §7. Written to be implemented as-is; every
 > number below is measured, not preference.
+>
+> **Scaffold status (2026-07-27):** implemented against synthetic dual-aspect paths. Final path points and
+> phone-feel timing still come from the real landscape/portrait edit.
 
 ---
 
@@ -65,6 +68,23 @@ framings and therefore different end positions).
 - If the track data is absent (placeholder builds), fall back to viewport center and emit one
   `console.warn` — do not fail silently, and do not ship the fallback.
 
+The runtime contract is versioned and keeps one normalized path per final framing. Exact point values land
+with the real tracking export; the scaffold uses synthetic points in the same shape:
+
+```json
+{
+  "version": 2,
+  "coordinateSpace": "normalized",
+  "paths": {
+    "landscape": { "points": [{ "frame": 0, "x": 0.5, "y": 0.5 }] },
+    "portrait":  { "points": [{ "frame": 0, "x": 0.5, "y": 0.5 }] }
+  }
+}
+```
+
+The loader may read the old top-level `points` array while placeholders remain, but production delivery must
+contain both named paths. Points are sorted by frame; malformed or out-of-range points are ignored.
+
 `R_full` = the distance from the origin to the farthest of the four viewport corners.
 
 ---
@@ -76,10 +96,10 @@ framings and therefore different end positions).
 Let `t = q / A5.expandEnd`.
 
 - **Radius:** `r = R_full * (1 - Math.pow(1 - t, 3))` (ease-out cubic — fast departure, soft arrival).
-- **Field alpha:** ramps `0 → 1` over `t ∈ [0, 0.7]`, then holds at 1. The field is solid `--volt`
-  at that alpha, composited over the void.
-- **Last act-4 frame** stays drawn beneath the circle until field alpha reaches 1; after that, skip
-  drawing it for the remainder of act 5.
+- **Field alpha:** holds at 1. The expanding circle is solid `--volt`; its changing radius supplies the
+  reveal without creating a low-contrast translucent phase.
+- **Last act-4 frame** stays drawn beneath the circle through EXPAND; after the circle reaches the farthest
+  corner, skip drawing it for the remainder of act 5.
 
 ### 4.2 HOLD — `A5.expandEnd → A5.holdEnd`
 
@@ -97,7 +117,9 @@ Celebration loop opacity ramps `0 → 0.18`. Name at `--text-hi` on `--bg-void` 
 
 ### 4.5 RELEASE — `A5.settleEnd → 1.0`
 
-Section [03] VITALS fades up per existing behavior. Name holds.
+Section [03] VITALS reads a `--vitals-release` value computed as normalized progress across this phase.
+Opacity rises from 0.2 to 1 and vertical offset falls from 2rem to 0. Reduced motion keeps the static default
+of 1. Name holds.
 
 ---
 
@@ -107,17 +129,18 @@ Section [03] VITALS fades up per existing behavior. Name holds.
 the whole of act 5. Its fill is a function of the field's current alpha:
 
 ```ts
-// alpha is the field's current alpha, 0..1
-nameFill = alpha > 0.49 ? 'var(--bg-void)' : 'var(--text-hi)';
+// q is local act-5 progress; alpha is the field's current alpha, 0..1
+nameFill = q < A5.holdEnd || alpha > 0.49 ? 'var(--bg-void)' : 'var(--text-hi)';
 ```
 
 This produces the intended mechanic for free: before the circle arrives, the name is `--bg-void` on
-`--bg-void` and is invisible; the expanding mint circle sweeps over it and **develops** it. No reveal
-animation is needed or wanted.
+`--bg-void` and is invisible; the solid mint circle sweeps over it and **develops** it. During DISSOLVE,
+the fill steps to white at the contrast crossover. No opacity reveal is needed or wanted.
 
 **Why 0.49.** That is the field alpha at which a void-filled name and a white-filled name give equal
 contrast against the field — 4.30:1 and 4.26:1 respectively. Stepping there guarantees the worst
-moment in the entire transition is **≈4.28:1**, above WCAG AA, versus 1.45:1 for a crossfade.
+moment in the entire transition is **≈4.28:1**, above WCAG AA for this large display text, versus 1.45:1
+for a crossfade.
 
 | field alpha | field colour | void name | white name |
 |---|---|---|---|
@@ -128,8 +151,8 @@ moment in the entire transition is **≈4.28:1**, above WCAG AA, versus 1.45:1 f
 | 0.35 | `#256049` | 2.68:1 | **6.82:1** |
 | 0.00 | `#070B09` | 1.00:1 | **18.32:1** |
 
-Key the step to **alpha**, not to a `q` value, so it stays correct if the phase boundaries in §2 are
-retuned later.
+Within DISSOLVE, key the colour step to **alpha**, not to a hardcoded `q` value, so it stays correct if the
+phase boundaries in §2 are retuned later. The `holdEnd` check only distinguishes expansion from dissolution.
 
 Implementation: the name stays DOM text. Set one CSS custom property on it from the draw loop
 (`el.style.setProperty('--name-fill', …)`); do not toggle classes and do not re-render the node.
@@ -140,8 +163,9 @@ Implementation: the name stays DOM text. Set one CSS custom property on it from 
 
 The circle *is* the ball — do not draw a separate ball during EXPAND or HOLD.
 
-From `A5.holdEnd` onward, a single `--volt` dot persists at the circle origin, scaling down as the
-field dissolves and coming to rest at **≤14px diameter** as part of the title lockup. This is the
+From `A5.holdEnd` onward, a single `--volt` dot persists at the circle origin. Its starting radius is 6% of
+the canvas's shorter edge and it eases to a **14px diameter** over `holdEnd → dissolveEnd` using the same
+ease-out cubic as the expanding circle. It then holds as part of the title lockup. This is the
 "JACOB DEJA + ball motif" of §5b and it is the *only* volt element remaining after the dissolve.
 
 ---
@@ -159,8 +183,9 @@ field dissolves and coming to rest at **≤14px diameter** as part of the title 
 
 1. **Contrast floor.** Sampling `q` at 0.01 intervals across act 5, the computed contrast between the
    name fill and the composited field beneath it is **≥4.2:1 at every sample**.
-2. **Reversibility.** Rendering at 20 ascending `q` values and then the same 20 descending produces
-   pixel-identical output at each matching `q`. Any divergence means state leaked in.
+2. **Reversibility.** With the time-based celebration video frozen to one frame, rendering at 20 ascending
+   `q` values and then the same 20 descending produces pixel-identical canvas/title/vitals output at each
+   matching `q`. Any divergence means state leaked in.
 3. **No time-based animation.** Grep the act-5 code path: zero `transition`, `@keyframes`,
    `animate()`, `setTimeout`, or GSAP `.to()` on radius, field alpha, name fill, dot scale, or
    celebration opacity.
@@ -178,5 +203,5 @@ field dissolves and coming to rest at **≤14px diameter** as part of the title 
   draw with `clearRect` per §7 — never `fillRect` the background, or transparent frames will smear.
 - Draw order, bottom to top: coded background → celebration loop → act-4 alpha frame → volt field →
   ball dot → name.
-- All six boundaries in `A5` are meant to be tuned by feel on a real phone. The logic must not assume
-  any particular ordering beyond `expandEnd < holdEnd < dissolveEnd < settleEnd`.
+- The four internal boundaries in `A5` are meant to be tuned by feel on a real phone. The logic must not
+  assume any particular values beyond `expandEnd < holdEnd < dissolveEnd < settleEnd`.
