@@ -248,3 +248,13 @@ OG/poster dimensions are correct, all ordinary text-token contrast checks pass W
 hydrates, and `astro check`/the static build are clean. Remaining: wire the Sheet's deploy hook, add the
 reel/phone/approved copy, replace the placeholder OG media, run Lighthouse,
 and verify on real iPhone Safari.
+
+---
+
+## Act-5 match-cut refinement — 2026-07-27
+
+Rebuilt the placeholder Act-5 payoff as a scroll-derived sequence: the solid volt circle expands from the
+active aspect's final tracked ball point, develops the void-coloured name, holds, dissolves with a contrast-safe
+step to white, then leaves one ≤14px ball dot over the low-opacity celebration before releasing Vitals. Added
+the versioned portrait/landscape path contract and synthetic v2 data while retaining temporary legacy-path
+reading. Final coordinates, timing feel, and origin fidelity remain pending on the real AE exports and phone.
